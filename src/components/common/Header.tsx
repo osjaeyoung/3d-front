@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export const Header = () => {
+  const router = useRouter();
   return (
     <header className="bg-white shadow-md p-4">
       <nav className="flex justify-between items-center">
@@ -21,7 +23,7 @@ export const Header = () => {
             <Link href="/contact" className="hover:text-orange-500">Contact</Link>
           </li>
         </ul>
-        <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
+        <button onClick={() => router.push("/signin")} className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
             Login
         </button>
       </nav>
