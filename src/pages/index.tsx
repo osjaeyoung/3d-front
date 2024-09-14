@@ -1,10 +1,9 @@
-import { Header, Footer } from "@/components";
+import { Layout } from "@/components";
 import Image from "next/image";
 
 const Home = () => {
   return (
-    <div>
-      <Header />
+    <Layout>
       <main className="flex flex-col items-center min-h-screen">
         <div className="relative w-full h-[760px]">
           <Image 
@@ -21,9 +20,8 @@ const Home = () => {
             </button>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </main>      
+    </Layout>
   );
 };
 
