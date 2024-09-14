@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useForm } from "react-hook-form";
 
 
-const SignIn = () => {
+const SignInPage = () => {
   const { register, handleSubmit } = useForm();
   const onSubmit = (data:any) => {
       console.log(data);
@@ -80,14 +80,10 @@ const SignIn = () => {
               <p className="text-sm text-gray-600 hover:underline">아이디/비밀번호 찾기</p>
             </Link>
           </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">다른 SNS 계정으로 로그인</p>
-          </div>
         </div>
       </main>
     </Layout>
   );
 };
 
-export default SignIn;
+export default SignInPage;
