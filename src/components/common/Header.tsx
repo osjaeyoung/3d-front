@@ -1,42 +1,46 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export const Header = () => {
   const router = useRouter();
-
-  const isActive = (pathname: string) => router.pathname === pathname;
+  const handleSigninPage = () => router.push("/signin");
 
   return (
-    <header className="bg-white shadow-md p-4">
+    <header className="bg-background shadow-md px-10 pt-10 pb-[30px] border-b border-white ">
       <nav className="flex justify-between items-center">
         <div className="text-xl font-bold">
-          <Link href="/">HOME</Link>
+          <Link
+            href="/"
+            className="text-white text-xl font-bold font-['Helvetica Neue']"
+          >
+            HOME
+          </Link>
         </div>
-        <ul className="flex space-x-8">
-          <li>
-            <Link href="/intro" className={`${isActive('/intro') ? 'font-bold underline' : 'hover:text-orange-500'}`}>
-              How It Works
-            </Link>
-          </li>
-          <li>
-            <Link href="/create" className={`${isActive('/create') ? 'font-bold underline' : 'hover:text-orange-500'}`}>
-              Create 3D Model
-            </Link>
-          </li>
-          <li>
-            <Link href="/my" className={`${isActive('/my') ? 'font-bold underline' : 'hover:text-orange-500'}`}>
-              My Models
-            </Link>
-          </li>
-          <li>
-            <Link href="/contact" className={`${isActive('/contact') ? 'font-bold underline' : 'hover:text-orange-500'}`}>
-              Contact
-            </Link>
-          </li>
-        </ul>
-        <button onClick={() => router.push("/signin")} className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
-            Login
-        </button>
+        <div className="flex gap-x-10">
+          <ul className="flex gap-x-10">
+            <li>
+              <Link href="/intro" className="text-white text-xl">
+                How It Works
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/create"
+                className="text-white text-xl font-medium font-['Helvetica Neue']"
+              >
+                Create 3D Model
+              </Link>
+            </li>
+          </ul>
+          <button
+            onClick={handleSigninPage}
+            className="w-[76px] h-[26px] bg-gradient px-2.5 py-0.5 rounded-[20px] justify-center items-center gap-2.5 inline-flex"
+          >
+            <div className="text-white text-sm font-bold font-['Helvetica Neue']">
+              LOGIN
+            </div>
+          </button>
+        </div>
       </nav>
     </header>
   );
