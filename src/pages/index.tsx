@@ -1,26 +1,33 @@
 import { Layout } from "@/components";
+import { ArrowIcon } from "@/components/icons";
 import Image from "next/image";
 
 const Home = () => {
   return (
     <Layout>
-      <main className="flex flex-col items-center min-h-screen">
-        <div className="relative w-full h-[760px]">
-          <Image 
-            src="https://via.placeholder.com/1440x1080" 
-            alt="Main Image" 
-            layout="fill" // 이미지가 div 영역에 꽉 차도록 설정
-            objectFit="cover" // 이미지가 영역을 커버하도록 설정
-            priority // 페이지 로드 시 우선 로드
+      <main className="flex flex-col items-center">
+        <div className="relative w-full h-[760px] bg-gradient-to-t from-[#2f2c3f] to-[#2f2c3f]">
+          <Image
+            src="/image/main_img.png"
+            alt="Main Image"
+            layout="fill"
+            objectFit="cover"
+            priority
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black bg-opacity-50 text-white">
-            <h1 className="text-4xl font-bold">Turn Your 2D Art into 3D Models<br/> with a Single Click</h1>
-            <button className="mt-6 bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-md text-xl">
-              Get started
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black bg-opacity-50 text-white gap-y-[45px]">
+            <p className="text-center text-white text-4xl font-medium font-['Helvetica Neue']">
+              Turn Your 2D Art into 3D Models <br />
+              with a Single Click
+            </p>
+            <button className="h-12 px-6 py-3 bg-gradient rounded-[10px] justify-center items-center gap-3 inline-flex">
+              <p className="text-white text-xl font-bold font-['Helvetica Neue']">
+                GET STARTED
+              </p>
+              <ArrowIcon />
             </button>
           </div>
         </div>
-      </main>      
+      </main>
     </Layout>
   );
 };

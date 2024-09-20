@@ -4,9 +4,16 @@ import { useRouter } from "next/router";
 export const Header = () => {
   const router = useRouter();
   const handleSigninPage = () => router.push("/signin");
+  const linkStyle = (path: string) => {
+    const [_, pathSegments] = router.asPath.split("/");
+    return (
+      (pathSegments === path ? "text-[#ffb600]" : "text-white") +
+      " text-xl font-medium font-['Helvetica Neue']"
+    );
+  };
 
   return (
-    <header className="bg-background shadow-md px-10 pt-10 pb-[30px] border-b border-white ">
+    <header className="bg-background shadow-md px-10 pt-10 pb-[30px] border-b border-white/50">
       <nav className="flex justify-between items-center">
         <div className="text-xl font-bold">
           <Link
@@ -19,16 +26,18 @@ export const Header = () => {
         <div className="flex gap-x-10">
           <ul className="flex gap-x-10">
             <li>
-              <Link href="/intro" className="text-white text-xl">
+              <Link href="/intro" className={linkStyle("intro")}>
                 How It Works
               </Link>
             </li>
             <li>
-              <Link
-                href="/create"
-                className="text-white text-xl font-medium font-['Helvetica Neue']"
-              >
+              <Link href="/create" className={linkStyle("create")}>
                 Create 3D Model
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className={linkStyle("contact")}>
+                Contact
               </Link>
             </li>
           </ul>
