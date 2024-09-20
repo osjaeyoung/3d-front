@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <Layout>
       <main className="flex flex-col items-center">
-        <div className="relative w-full h-[760px] bg-gradient-to-t from-[#2f2c3f] to-[#2f2c3f]">
+        <div className="relative w-full h-[760px]">
           <Image
             src="/image/main_img.png"
             alt="Main Image"

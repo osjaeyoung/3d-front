@@ -1,5 +1,5 @@
 interface SocialIconProps {
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 export const KakaoIcon = ({ onClick }: SocialIconProps) => {
