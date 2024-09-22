@@ -1,3 +1,7 @@
+export { SmallUploadIcon } from "./SmallUploadIcon";
+export { SmallDocumentIcon } from "./SmallDocumentIcon";
+export { SmallObjectIcon } from "./SmallObjectIcon";
+export { SmallWheelIcon } from "./SmallWheelIcon";
 export { WheelIcon } from "./WheelIcon";
 export { KakaoLogo } from "./KakaoLogo";
 export { DocumentIcon } from "./DocumentIcon";
@@ -8,3 +12,6 @@ export { InstagramIcon } from "./InstagramIcon";
 export { FacebookIcon } from "./FacebookIcon";
 export { ArrowIcon } from "./ArrowIcon";
 export { GoogleLogo } from "./GoogleLogo";
+export { ArrowBackIcon } from "./ArrowBackIcon";
+export { PlusIcon } from "./PlusIcon";
+export { RotateIcon } from "./RotateIcon";
