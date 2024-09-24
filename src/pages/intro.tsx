@@ -68,7 +68,7 @@ const IntroPage = () => {
 
   return (
     <Layout className="min-h-screen flex flex-col">
-      <div className="bg-background flex flex-col justify-center items-center pt-10 gap-y-[49px] pb-[69px]">
+      <div className="bg-background flex flex-col justify-center items-center pt-10 gap-y-[49px] pb-[69px] h-[calc(100vh-178px)]">
         <p className="text-center text-white text-[32px] font-medium font-['Helvetica Neue']">
           How to Create Paper Toys?
         </p>

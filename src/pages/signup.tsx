@@ -9,8 +9,8 @@ const Signup = () => {
   };
   return (
     <Layout>
-      <main className="flex flex-col items-start">
-        <div className="relative w-full h-[760px]">
+      <main className="flex flex-col items-start h-[calc(100vh-178px)]">
+        <div className="relative w-full h-full">
           <Image
             src="/image/main_img.png"
             alt="Main Image"

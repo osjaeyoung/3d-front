@@ -5,8 +5,8 @@ import Image from "next/image";
 const Home = () => {
   return (
     <Layout>
-      <main className="flex flex-col items-center">
-        <div className="relative w-full h-[760px]">
+      <main className="flex flex-col items-center h-[calc(100vh-178px)]">
+        <div className="relative w-full h-full">
           <Image
             src="/image/main_img.png"
             alt="Main Image"

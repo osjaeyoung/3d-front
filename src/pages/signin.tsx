@@ -12,7 +12,7 @@ const SignInPage = () => {
 
   return (
     <Layout className="flex flex-col">
-      <main className="bg-background flex-grow flex justify-center items-center">
+      <main className="bg-background flex-grow flex justify-center items-center h-[calc(100vh-178px)]">
         <div className="flex flex-col pl-10 pr-[60px] pt-[27px]">
           <p className="text-white text-4xl font-medium font-['Helvetica Neue'] mb-[27px]">
             Turn Your 2D Art <br />
@@ -33,7 +33,7 @@ const SignInPage = () => {
             height={282}
           />
         </div>
-        <div className="flex flex-col items-center justify-center h-screen">
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-178px)]">
           <div className="relative w-[692px] h-full">
             <Image
               src="/image/main_img.png"

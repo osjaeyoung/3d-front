@@ -83,7 +83,7 @@ const Create3DModel = () => {
     "gap-x-[9px] rounded-[27px] data-[state=active]:shadow data-[state=active]:border data-[state=active]:border-[#262433]";
   return (
     <Layout className="min-h-screen flex flex-col">
-      <main className="flex flex-col items-center bg-background">
+      <main className="flex flex-col items-center bg-background h-[calc(100vh-178px)]">
         <p className="text-center text-white text-[32px] font-medium font-['Helvetica Neue'] mt-10">
           Create 3D Model
         </p>

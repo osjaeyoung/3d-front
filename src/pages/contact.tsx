@@ -11,8 +11,8 @@ const ContactPage = () => {
 
   return (
     <Layout>
-      <main className="flex flex-col items-center">
-        <div className="relative w-full h-[760px]">
+      <main className="flex flex-col items-center h-[calc(100vh-178px)]">
+        <div className="relative w-full h-[calc(100vh-178px)]">
           <Image
             src="/image/main_img.png"
             alt="Main Image"
