@@ -1,8 +1,10 @@
 import { Layout } from "@/components";
 import { ArrowIcon } from "@/components/icons";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 const Home = () => {
+  const router = useRouter();
   return (
     <Layout>
       <main className="flex flex-col items-center h-[calc(100vh-178px)]">
@@ -19,7 +21,10 @@ const Home = () => {
               Turn Your 2D Art into 3D Models <br />
               with a Single Click
             </p>
-            <button className="h-12 px-6 py-3 bg-gradient rounded-[10px] justify-center items-center gap-3 inline-flex">
+            <button
+              onClick={() => router.push("/intro")}
+              className="h-12 px-6 py-3 bg-gradient rounded-[10px] justify-center items-center gap-3 inline-flex"
+            >
               <p className="text-white text-xl font-bold font-['Helvetica Neue']">
                 GET STARTED
               </p>

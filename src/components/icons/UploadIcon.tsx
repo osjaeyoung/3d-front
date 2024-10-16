@@ -26,8 +26,8 @@ export const UploadIcon = () => {
           y2="77.105"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1_71"
@@ -37,8 +37,8 @@ export const UploadIcon = () => {
           y2="94.345"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <clipPath id="clip0_1_71">
           <rect

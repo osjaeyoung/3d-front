@@ -1,5 +1,5 @@
 import { Layout } from "@/components";
-import { ImageUploadZone, ProgressViewer, Viewer3D } from "@/components/domain";
+import { ImageUploadZone, ProgressViewer, Viewer3D, PreviewZone } from "@/components/domain";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -17,10 +17,9 @@ import {
   SmallWheelIcon,
   ArrowBackIcon,
   PlusIcon,
-  RotateIcon,
 } from "@/components/icons";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import axios from "axios";
 
 interface TabContentWrapperProps {
   title: string;
@@ -48,39 +47,143 @@ const TabContentWrapper: React.FC<TabContentWrapperProps> = ({
   );
 };
 
+const API = "http://3.38.72.210:4000";
+
 const Create3DModel = () => {
   // 상태 관리
-  const [file, setFile] = useState<File | null>(null); // 업로드할 파일
   const [progress, setProgress] = useState(0); // 진행률
   const [isUploading, setIsUploading] = useState(false); // 업로드 중 여부
   const [isCompleted, setIsCompleted] = useState(false); // 다운로드 완료 여부
   const [modelData, setModelData] = useState<any>(null); // 다운로드된 3D 객체
+  const [tab, setTab] = useState("upload");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedPreviewFiles, setSelectedPreviewFiles] = useState<string[]>(
+    []
+  );
+  const [processingStep, setProcessingStep] = useState(0);
 
-  const handleUpload = async (selectedFile: File) => {
-    setFile(selectedFile);
+  const handleTabChange = (tab: string) => {
+    setTab(tab);
+  };
+
+  const handleUpload = async () => {
+    setTab("progress");
     setIsUploading(true);
+    setProgress(0);
 
     try {
-      // 여기에 axios 업로드 요청을 넣을 수 있습니다
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // 모의 업로드 (2초)
+      // 파일 형식 및 개수 검증
+      const validFileTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/bmp",
+      ];
+      const validFiles = selectedFiles.filter((file) =>
+        validFileTypes.includes(file.type)
+      );
 
-      // 업로드가 완료되면 진행률을 100%로 설정하고 완료 처리
-      setProgress(100);
-      setIsUploading(false);
-      setIsCompleted(true);
+      if (validFiles.length === 0) {
+        throw new Error(
+          "유효한 이미지 파일을 선택해주세요. (jpg, jpeg, png, bmp)"
+        );
+      }
 
-      // 3D 모델 데이터 (가정)
-      setModelData({
-        /* 3D 모델 데이터 */
+      if (validFiles.length > 6) {
+        throw new Error("최대 6개의 파일만 업로드할 수 있습니다.");
+      }
+
+      // FormData 생성 및 파일 추가
+      const formData = new FormData();
+      validFiles.forEach((file, index) => {
+        formData.append(`files`, file);
       });
+      const response = await axios.post(`${API}/file/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.status === 201 && response.data === "ok") {
+        await axios.post(`${API}/meshroom/run`, null, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+        await pollMeshroomStatus();
+      }
     } catch (error) {
       console.error("Error uploading file:", error);
+    } finally {
       setIsUploading(false);
     }
   };
 
+  const pollMeshroomStatus = async () => {
+    const pollInterval = 3000;
+    const maxSteps = 13;
+    while (true) {
+      try {
+        const status = await axios.get(
+          "http://3.38.72.210:4000/meshroom/state"
+        );
+        const currentStep = status.data.step;
+        setProcessingStep(currentStep);
+        setProgress((currentStep / maxSteps) * 100);
+        if (currentStep === maxSteps) {
+          setTab("preview_download");
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      } catch (error) {
+        console.error("Error polling Meshroom status:", error);
+        break;
+      }
+    }
+  };
+
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length + selectedFiles.length > 6) {
+      alert("최대 6개의 파일만 선택할 수 있습니다.");
+      return;
+    }
+
+    setIsUploading(true);
+
+    const newFiles = files.slice(0, 6 - selectedFiles.length);
+    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+
+    const newPreviews = await Promise.all(
+      newFiles.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+        });
+      })
+    );
+
+    setSelectedPreviewFiles((prevPreviews) => [
+      ...prevPreviews,
+      ...newPreviews,
+    ]);
+    setIsUploading(false);
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    setSelectedPreviewFiles((prevPreviews) =>
+      prevPreviews.filter((_, i) => i !== index)
+    );
+  };
+
   const tabTriggerStyle =
     "gap-x-[9px] rounded-[27px] data-[state=active]:shadow data-[state=active]:border data-[state=active]:border-[#262433]";
+
   return (
     <Layout className="min-h-screen flex flex-col">
       <main className="flex flex-col items-center bg-background h-[calc(100vh-178px)]">
@@ -88,7 +191,7 @@ const Create3DModel = () => {
           Create 3D Model
         </p>
         <Tabs
-          defaultValue="upload"
+          value={tab}
           className="flex flex-col justify-center items-center gap-y-[23px]"
         >
           <div className="bg-white rounded-[27px] shadow mt-[51px]">
@@ -96,8 +199,9 @@ const Create3DModel = () => {
               <TabsTrigger
                 value="upload"
                 className={`pl-[31px] pr-[20px] py-[14px] ${tabTriggerStyle}`}
+                onClick={() => handleTabChange("upload")}
               >
-                <SmallUploadIcon isActive={true} />
+                <SmallUploadIcon isActive={tab === "upload"} />
                 <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
                   Upload Your Image
                 </p>
@@ -105,8 +209,9 @@ const Create3DModel = () => {
               <TabsTrigger
                 value="progress"
                 className={`px-[16px] py-[14px] ${tabTriggerStyle}`}
+                onClick={() => handleTabChange("progress")}
               >
-                <SmallWheelIcon isActive={true} />
+                <SmallWheelIcon isActive={tab === "progress"} />
                 <p className="w-44 text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
                   Let the AI Process Your Model
                 </p>
@@ -114,8 +219,9 @@ const Create3DModel = () => {
               <TabsTrigger
                 value="preview_download"
                 className={`px-[23px]  py-[14px] ${tabTriggerStyle}`}
+                onClick={() => handleTabChange("preview_download")}
               >
-                <SmallDocumentIcon isActive={true} />
+                <SmallDocumentIcon isActive={tab === "preview_download"} />
                 <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
                   {"Preview & Download"}
                 </p>
@@ -123,8 +229,9 @@ const Create3DModel = () => {
               <TabsTrigger
                 value="object"
                 className={`px-[31px] py-[14px] ${tabTriggerStyle}`}
+                onClick={() => handleTabChange("object")}
               >
-                <SmallObjectIcon isActive={true} />
+                <SmallObjectIcon isActive={tab === "object"} />
                 <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
                   Create Paper Toys
                 </p>
@@ -133,147 +240,32 @@ const Create3DModel = () => {
           </div>
           <TabsContent value="upload" className="w-full">
             <TabContentWrapper title="Upload Your Image" onClick={() => {}}>
-              <div className="flex flex-col justify-center items-ceter w-full h-[254px] pl-[54px] pt-[45px] pb-[35px] rounded-[20px] border border-dashed border-[#c9c9c9] mt-6">
-                <div className="w-full flex flex-col justify-center items-start gap-y-[14px]">
-                  <p className="text-[#2f2c3f] text-base font-medium font-['Helvetica Neue']">
-                    ✓ Drag {"&"} Drop your image here or click to upload
-                  </p>
-                  <p className="text-[#2f2c3f] text-base font-medium font-['Helvetica Neue']">
-                    ✓ 이미지 파일을 이곳에 끌어넣거나, 업로드 버튼을 클릭해
-                    업로드하세요.
-                  </p>
-                  <p className="text-[#ff8800] text-xs font-bold font-['SUIT Variable'] pl-[19px]">
-                    지원하는 확장자 : JPG, PNG, BMP
-                  </p>
-                </div>
-                <button
-                  onClick={() => {}}
-                  className="w-full max-w-[162px] h-[45px] px-6 py-3.5 bg-[#ffb600] rounded justify-center items-center gap-2.5 inline-flex mt-12 mx-auto"
-                >
-                  <p className="text-[#2f2c3f] text-sm font-bold font-['SUIT Variable'] whitespace-nowrap">
-                    업로드 파일 선택
-                  </p>
-                  <PlusIcon />
-                </button>
-              </div>
+              <ImageUploadZone
+                selectedFiles={selectedFiles}
+                setSelectedFiles={setSelectedFiles}
+                selectedPreviewFiles={selectedPreviewFiles}
+                setSelectedPreviewFiles={setSelectedPreviewFiles}
+                removeFile={removeFile}
+                handleUpload={handleUpload}
+                isUploading={isUploading}
+              />
             </TabContentWrapper>
           </TabsContent>
           <TabsContent value="progress">
             <TabContentWrapper title="AI Process Your Model" onClick={() => {}}>
-              <Progress
-                value={60}
-                className="w-full max-w-[710px] mx-auto h-[18px] bg-white rounded-[27px] shadow mt-[53px]"
+              <ProgressViewer
+                progress={progress}
+                processingStep={processingStep}
               />
-              <div className="w-full max-w-[710px] mx-auto flex flex-col items-start gap-y-[14px] mt-9">
-                <p className="text-[#2f2c3f] text-base font-medium font-['Helvetica Neue']">
-                  ✓ Your 3D model is being generated, this may take a few
-                  moments.
-                </p>
-                <p className="text-[#2f2c3f] text-base font-medium font-['SUIT Variable']">
-                  <span className="font-['Helvetica Neue']">✓</span> Your 3D ✓
-                  3D 모델을 생성하는 중입니다. 잠시만 기다려주세요.
-                </p>
-              </div>
-              <div
-                id="btn_group"
-                className="flex justify-center gap-4 mt-[66px]"
-              >
-                <button className="w-[122px] h-11 px-6 py-3.5 bg-[#ffb600] rounded justify-center items-center gap-2.5 inline-flex">
-                  <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase">
-                    Continue
-                  </p>
-                </button>
-                <button className="w-[122px] h-11 px-6 py-3.5 bg-[#c9c9c9] rounded justify-center items-center gap-2.5 inline-flex">
-                  <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase">
-                    CANCEL
-                  </p>
-                </button>
-              </div>
             </TabContentWrapper>
           </TabsContent>
           <TabsContent value="preview_download">
-            <TabContentWrapper title={"Preview & Download"} onClick={() => {}}>
-              <div className="flex flex-col">
-                <div className="flex gap-x-7 justify-start items-start mt-7">
-                  <Viewer3D />
-                  <div className="h-full pt-3">
-                    <p className="text-[#2f2c3f] text-sm font-medium font-['Helvetica Neue'] uppercase mb-7">
-                      Created file option
-                    </p>
-                    <form
-                      id="options"
-                      className="flex flex-col h-full items-start gap-y-2 pl-[5px]"
-                    >
-                      <div className="flex gap-x-4 justify-center items-center">
-                        <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
-                          파일형식
-                        </label>
-                        <Select>
-                          <SelectTrigger className="w-[180px] h-[26px] px-2 py-[5px] bg-[#c9c9c9]/20 rounded justify-between items-center inline-flex">
-                            <SelectValue placeholder="OBJ" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="OBJ">OBJ</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">System</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {/*  */}
-                      <div className="flex gap-x-4 justify-center items-center">
-                        <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
-                          폴리곤 수
-                        </label>
-                        <Select>
-                          <SelectTrigger className="w-[180px] h-[26px] px-2 py-[5px] bg-[#c9c9c9]/20 rounded justify-between items-center inline-flex">
-                            <SelectValue placeholder="적음(23)" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="OBJ">OBJ</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">System</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {/*  */}
-                      <div className="flex gap-x-4 justify-center items-center">
-                        <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
-                          모델 크기
-                        </label>
-                        <Select>
-                          <SelectTrigger className="w-[180px] h-[26px] px-2 py-[5px] bg-[#c9c9c9]/20 rounded justify-between items-center inline-flex">
-                            <SelectValue placeholder="적음 (35MB)" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="OBJ">OBJ</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">System</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-                <div
-                  id="btn_group"
-                  className="flex justify-center gap-4 mt-[15px] mb-[25px]"
-                >
-                  <button className="w-[122px] h-11 px-6 py-3.5 bg-[#ffb600] rounded justify-center items-center gap-2.5 inline-flex">
-                    <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase">
-                      Continue
-                    </p>
-                  </button>
-                  <button className="w-[122px] h-11 px-6 py-3.5 bg-[#c9c9c9] rounded justify-center items-center gap-2.5 inline-flex">
-                    <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase">
-                      CANCEL
-                    </p>
-                  </button>
-                </div>
-              </div>
+            <TabContentWrapper title="Preview & Download" onClick={() => {}}>
+              <PreviewZone />
             </TabContentWrapper>
           </TabsContent>
           <TabsContent value="object">
-            <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
+            {/* <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
               <div className="flex flex-col">
                 <div className="flex gap-x-7 justify-start items-start mt-7">
                   <Viewer3D />
@@ -295,7 +287,6 @@ const Create3DModel = () => {
                           OBJ
                         </p>
                       </div>
-                      {/*  */}
                       <div className="flex justify-center items-center">
                         <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
                           폴리곤 수
@@ -308,7 +299,6 @@ const Create3DModel = () => {
                           적음(23)
                         </p>
                       </div>
-                      {/*  */}
                       <div className="flex justify-center items-center">
                         <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
                           모델 크기
@@ -345,7 +335,7 @@ const Create3DModel = () => {
                   </button>
                 </div>
               </div>
-            </TabContentWrapper>
+            </TabContentWrapper> */}
           </TabsContent>
         </Tabs>
       </main>
@@ -354,15 +344,3 @@ const Create3DModel = () => {
 };
 
 export default Create3DModel;
-
-{
-  /* {!file && !isUploading && (
-        <ImageUploadZone onFileUpload={handleUpload} />
-      )}
-      {file && isUploading && (
-        <ProgressViewer progress={progress} />
-      )}
-      {isCompleted && modelData && (
-        <Viewer3D modelData={modelData} />
-      )} */
-}

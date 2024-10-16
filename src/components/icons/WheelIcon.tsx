@@ -34,8 +34,8 @@ export const WheelIcon = () => {
           y2="94.365"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1_80"
@@ -45,8 +45,8 @@ export const WheelIcon = () => {
           y2="85.155"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_1_80"
@@ -56,8 +56,8 @@ export const WheelIcon = () => {
           y2="50.205"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_1_80"
@@ -67,8 +67,8 @@ export const WheelIcon = () => {
           y2="69.355"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <clipPath id="clip0_1_80">
           <rect

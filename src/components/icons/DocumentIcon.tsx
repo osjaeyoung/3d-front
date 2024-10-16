@@ -38,8 +38,8 @@ export const DocumentIcon = () => {
           y2="86.0162"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1_90"
@@ -49,8 +49,8 @@ export const DocumentIcon = () => {
           y2="84.856"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_1_90"
@@ -60,8 +60,8 @@ export const DocumentIcon = () => {
           y2="37.718"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_1_90"
@@ -71,8 +71,8 @@ export const DocumentIcon = () => {
           y2="50.1847"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <linearGradient
           id="paint4_linear_1_90"
@@ -82,8 +82,8 @@ export const DocumentIcon = () => {
           y2="62.6069"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFB700" />
-          <stop offset="1" stop-color="#C03B97" />
+          <stop stopColor="#FFB700" />
+          <stop offset="1" stopColor="#C03B97" />
         </linearGradient>
         <clipPath id="clip0_1_90">
           <rect

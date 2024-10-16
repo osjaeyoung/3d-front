@@ -9,7 +9,7 @@ export const SmallObjectIcon = ({ isActive }: { isActive: boolean }) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g clip-path="url(#clip0_18_5243)">
+          <g clipPath="url(#clip0_18_5243)">
             <path
               d="M27.4485 1.73071C28.1156 1.96406 28.2682 2.46665 28.2622 3.12481C28.2383 5.10825 28.2532 7.08871 28.2532 9.07215C28.2532 9.87091 27.8942 10.2359 27.1044 10.2359C25.0432 10.2359 22.982 10.2359 20.9208 10.2359C20.1429 10.2359 19.775 9.86792 19.775 9.09907C19.775 7.10665 19.7899 5.11424 19.766 3.12182C19.757 2.46366 19.9066 1.96107 20.5797 1.73071H27.4515L27.4485 1.73071ZM21.6388 3.62142V8.36613H26.3805V3.62142H21.6388Z"
               fill="url(#paint0_linear_18_5243)"
@@ -36,8 +36,8 @@ export const SmallObjectIcon = ({ isActive }: { isActive: boolean }) => {
               y2="10.2359"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint1_linear_18_5243"
@@ -47,8 +47,8 @@ export const SmallObjectIcon = ({ isActive }: { isActive: boolean }) => {
               y2="28.2724"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint2_linear_18_5243"
@@ -58,8 +58,8 @@ export const SmallObjectIcon = ({ isActive }: { isActive: boolean }) => {
               y2="24.4562"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint3_linear_18_5243"
@@ -69,8 +69,8 @@ export const SmallObjectIcon = ({ isActive }: { isActive: boolean }) => {
               y2="16.8623"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <clipPath id="clip0_18_5243">
               <rect
@@ -90,7 +90,7 @@ export const SmallObjectIcon = ({ isActive }: { isActive: boolean }) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g clip-path="url(#clip0_18_4249)">
+          <g clipPath="url(#clip0_18_4249)">
             <path
               d="M27.448 1.73071C28.1151 1.96406 28.2677 2.46665 28.2617 3.12481C28.2378 5.10825 28.2527 7.08871 28.2527 9.07215C28.2527 9.87091 27.8937 10.2359 27.104 10.2359C25.0427 10.2359 22.9815 10.2359 20.9203 10.2359C20.1425 10.2359 19.7745 9.86792 19.7745 9.09907C19.7745 7.10665 19.7894 5.11424 19.7655 3.12182C19.7565 2.46366 19.9061 1.96107 20.5792 1.73071H27.451L27.448 1.73071ZM21.6383 3.62142V8.36613H26.38V3.62142H21.6383Z"
               fill="#C9C9C9"

@@ -1,64 +1,114 @@
-import { RotateIcon } from "@/components/icons";
-import React, { useEffect, useRef } from "react";
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import React, { useRef, useEffect, useState } from 'react';
+import { Canvas, useThree, useFrame, extend } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import * as THREE from 'three';
 
-interface Viewer3DProps {
-  modelData?: any;
+extend({ OrbitControls });
+
+interface ParsedOBJ {
+  vertices: number[];
+  normals: number[];
+  uvs: number[];
+  indices: number[];
 }
 
-export const Viewer3D: React.FC<Viewer3DProps> = ({ modelData }) => {
-  const mountRef = useRef<HTMLDivElement | null>(null);
+const ParseOBJ = (text: string): ParsedOBJ => {
+  const vertices: number[] = [];
+  const normals: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+
+  const lines = text.split('\n');
+  let vertexOffset = 0;
+
+  lines.forEach((line) => {
+    const parts = line.trim().split(/\s+/);
+    switch (parts[0]) {
+      case 'v':
+        vertices.push(
+          parseFloat(parts[1]),
+          parseFloat(parts[2]),
+          parseFloat(parts[3])
+        );
+        break;
+      case 'vn':
+        normals.push(
+          parseFloat(parts[1]),
+          parseFloat(parts[2]),
+          parseFloat(parts[3])
+        );
+        break;
+      case 'vt':
+        uvs.push(parseFloat(parts[1]), parseFloat(parts[2]));
+        break;
+      case 'f':
+        for (let i = 1; i <= 3; i++) {
+          const face = parts[i].split('/');
+          indices.push(parseInt(face[0]) - 1 - vertexOffset);
+        }
+        break;
+    }
+  });
+
+  return { vertices, normals, uvs, indices };
+};
+
+interface ModelViewerProps {
+  modelData: string;
+}
+
+const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    if (modelData) {
+      const { vertices, normals, uvs, indices } = ParseOBJ(modelData);
+      console.log({ vertices, normals, uvs, indices });
 
-    const width = 375;
-    const height = 192; // 48px * 4 (assuming 1rem = 16px)
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-    renderer.setSize(width, height);
-    mountRef.current.appendChild(renderer.domElement);
-
-    // 박스 3D 객체 추가 (임시)
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-
-    camera.position.z = 5;
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-    controls.enableZoom = true;
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    return () => {
-      if (mountRef.current) {
-        mountRef.current.removeChild(renderer.domElement);
-      }
-    };
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geo.setIndex(indices);
+      console.log({ geo });
+      setGeometry(geo);
+    }
   }, [modelData]);
 
+  useFrame(() => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += 0.005;
+    }
+  });
+
+  if (!geometry) return null;
+
   return (
-    <div
-      className="w-[375px] h-48 bg-[#c9c9c9]/20 rounded-[10px] relative"
-      ref={mountRef}
-    >
-      <div className="absolute z-10 left-[333px] top-[13px]">
-        <RotateIcon />
-      </div>
+    <mesh ref={meshRef} geometry={geometry}>
+      <meshStandardMaterial color="black" side={THREE.DoubleSide} />
+    </mesh>
+  );
+};
+
+const CameraController: React.FC = () => {
+  const { camera, gl } = useThree();
+  return <OrbitControls args={[camera, gl.domElement]} />;
+};
+
+interface ThreeDModelViewerProps {
+  modelData: string;
+}
+
+export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({ modelData }) => {
+  return (
+    <div style={{ width: '100%', height: '400px' }}>
+      <Canvas camera={{ position: [0, 0, 5] }}>
+        <CameraController />
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} />
+        <ModelViewer modelData={modelData} />
+      </Canvas>
     </div>
   );
 };

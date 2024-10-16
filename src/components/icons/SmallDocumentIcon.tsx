@@ -9,7 +9,7 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g clip-path="url(#clip0_18_4295)">
+          <g clipPath="url(#clip0_18_4295)">
             <path
               d="M20.625 4.23022C20.7352 4.23022 20.8454 4.24965 20.9483 4.28364C20.963 4.2885 20.9752 4.29093 20.9899 4.29578C21.9303 4.52402 22.5523 5.28888 22.5596 6.25769C22.567 7.69512 22.5645 9.13256 22.5596 10.5724C22.5596 11.0362 22.2927 11.3251 21.8862 11.3251C21.487 11.3251 21.2152 11.0265 21.2127 10.5676C21.2078 9.18597 21.2127 7.80439 21.2127 6.42037C21.2127 5.82306 20.9752 5.58025 20.3826 5.58025C15.6268 5.58025 10.8711 5.58025 6.11532 5.58025C5.52024 5.58025 5.28269 5.82306 5.28269 6.42037C5.28269 12.1385 5.28269 17.8567 5.28269 23.5749C5.28269 24.2038 5.51534 24.4272 6.16919 24.4272C9.44091 24.4272 12.7126 24.4272 15.9844 24.4272C16.5745 24.4272 16.9394 24.8424 16.7337 25.3134C16.7092 25.3717 16.67 25.4227 16.626 25.4712C16.4398 25.6679 16.1754 25.7747 15.9035 25.7747H5.85573C5.75288 25.7747 5.64758 25.7602 5.54962 25.7262C5.52268 25.7165 5.49575 25.7092 5.46881 25.7019C4.57007 25.4712 3.9358 24.7015 3.9358 23.7788C3.9309 17.9271 3.9309 12.0754 3.9358 6.22369C3.9358 5.29859 4.57007 4.52645 5.46881 4.30064C5.49575 4.29336 5.52268 4.28607 5.54962 4.27636C5.65003 4.24479 5.75288 4.23022 5.85573 4.23022C10.778 4.23022 15.7027 4.23022 20.625 4.23022Z"
               fill="url(#paint0_linear_18_4295)"
@@ -40,8 +40,8 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
               y2="25.7747"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint1_linear_18_4295"
@@ -51,8 +51,8 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
               y2="25.4275"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint2_linear_18_4295"
@@ -62,8 +62,8 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
               y2="11.3258"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint3_linear_18_4295"
@@ -73,8 +73,8 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
               y2="15.0552"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <linearGradient
               id="paint4_linear_18_4295"
@@ -84,8 +84,8 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
               y2="18.7715"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#FFB700" />
-              <stop offset="1" stop-color="#C03B97" />
+              <stop stopColor="#FFB700" />
+              <stop offset="1" stopColor="#C03B97" />
             </linearGradient>
             <clipPath id="clip0_18_4295">
               <rect
@@ -105,7 +105,7 @@ export const SmallDocumentIcon = ({ isActive }: { isActive: boolean }) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g clip-path="url(#clip0_18_4239)">
+          <g clipPath="url(#clip0_18_4239)">
             <path
               d="M20.625 4.23022C20.7352 4.23022 20.8454 4.24965 20.9483 4.28364C20.963 4.2885 20.9752 4.29093 20.9899 4.29578C21.9303 4.52402 22.5523 5.28888 22.5596 6.25769C22.567 7.69512 22.5645 9.13256 22.5596 10.5724C22.5596 11.0362 22.2927 11.3251 21.8862 11.3251C21.487 11.3251 21.2152 11.0265 21.2127 10.5676C21.2078 9.18597 21.2127 7.80439 21.2127 6.42037C21.2127 5.82306 20.9752 5.58025 20.3826 5.58025C15.6268 5.58025 10.8711 5.58025 6.11532 5.58025C5.52024 5.58025 5.28269 5.82306 5.28269 6.42037C5.28269 12.1385 5.28269 17.8567 5.28269 23.5749C5.28269 24.2038 5.51534 24.4272 6.16919 24.4272C9.44091 24.4272 12.7126 24.4272 15.9844 24.4272C16.5745 24.4272 16.9394 24.8424 16.7337 25.3134C16.7092 25.3717 16.67 25.4227 16.626 25.4712C16.4398 25.6679 16.1754 25.7747 15.9035 25.7747H5.85573C5.75288 25.7747 5.64758 25.7602 5.54962 25.7262C5.52268 25.7165 5.49575 25.7092 5.46881 25.7019C4.57007 25.4712 3.9358 24.7015 3.9358 23.7788C3.9309 17.9271 3.9309 12.0754 3.9358 6.22369C3.9358 5.29859 4.57007 4.52645 5.46881 4.30064C5.49575 4.29336 5.52268 4.28607 5.54962 4.27636C5.65003 4.24479 5.75288 4.23022 5.85573 4.23022C10.778 4.23022 15.7027 4.23022 20.625 4.23022Z"
               fill="#C9C9C9"

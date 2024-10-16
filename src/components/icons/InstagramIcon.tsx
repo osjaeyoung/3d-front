@@ -53,13 +53,13 @@ export const InstagramIcon = ({ onClick }: SocialIconProps) => {
             gradientUnits="userSpaceOnUse"
             gradientTransform="translate(10.3701 54.5202) scale(59.2299 59.23)"
           >
-            <stop offset="0.1" stop-color="#F8D886" />
-            <stop offset="0.16" stop-color="#F3CB81" />
-            <stop offset="0.27" stop-color="#E8AA75" />
-            <stop offset="0.41" stop-color="#D77461" />
-            <stop offset="0.45" stop-color="#D3675D" />
-            <stop offset="0.68" stop-color="#C03B97" />
-            <stop offset="1" stop-color="#6968D7" />
+            <stop offset="0.1" stopColor="#F8D886" />
+            <stop offset="0.16" stopColor="#F3CB81" />
+            <stop offset="0.27" stopColor="#E8AA75" />
+            <stop offset="0.41" stopColor="#D77461" />
+            <stop offset="0.45" stopColor="#D3675D" />
+            <stop offset="0.68" stopColor="#C03B97" />
+            <stop offset="1" stopColor="#6968D7" />
           </radialGradient>
         </defs>
       </svg>

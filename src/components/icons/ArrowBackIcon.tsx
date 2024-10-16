@@ -10,9 +10,9 @@ export const ArrowBackIcon = () => {
       <path
         d="M18 10.2051H2M2 10.2051L8 2M2 10.2051L8 18"
         stroke="#2F2C3F"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
