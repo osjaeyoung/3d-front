@@ -1,5 +1,5 @@
 import { Layout } from "@/components";
-import { ImageUploadZone, ProgressViewer, Viewer3D, PreviewZone } from "@/components/domain";
+import { ImageUploadZone, ProgressViewer, ThreeDModelViewer, PreviewZone } from "@/components/domain";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -268,7 +268,7 @@ const Create3DModel = () => {
             {/* <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
               <div className="flex flex-col">
                 <div className="flex gap-x-7 justify-start items-start mt-7">
-                  <Viewer3D />
+                  <ThreeDModelViewer />
                   <div className="h-full pt-3">
                     <p className="text-center text-[#2f2c3f] text-sm font-medium font-['Helvetica Neue'] uppercase">
                       Created file option
