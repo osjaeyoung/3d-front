@@ -1,9 +1,19 @@
-import { useRouter } from "next/router";
 import styled from "styled-components";
 import { FacebookIcon, InstagramIcon, KakaoIcon } from "../icons";
 
 export const Footer = () => {
-  const router = useRouter();
+  const handleClickKakao = () => {
+    window.open("https://pf.kakao.com/_FXWZn");
+  };
+  const handleClickInstagram = () => {
+    window.open(
+      "https://www.instagram.com/diypaper_company/profilecard/?igsh=cWFjbHlmdjE5Znpw"
+    );
+  };
+  const handleClickFacebook = () => {
+    window.open("https://www.facebook.com/share/FBYq2Y3nfEu7CivE/");
+  };
+
   return (
     <Container className="relative transform translate-y-[calc(100%-80px)] w-full h-20 px-10 bg-[#2f2c3f] justify-between items-center inline-flex">
       <div className="w-full max-w-[312px] flex-col justify-start items-start gap-1 inline-flex">
@@ -23,9 +33,9 @@ export const Footer = () => {
         </p>
       </div>
       <div className="justify-start items-center gap-[30px] flex">
-        <KakaoIcon onClick={() => router.push("")} />
-        <InstagramIcon onClick={() => router.push("")} />
-        <FacebookIcon onClick={() => router.push("")} />
+        <KakaoIcon onClick={handleClickKakao} />
+        <InstagramIcon onClick={handleClickInstagram} />
+        <FacebookIcon onClick={handleClickFacebook} />
       </div>
     </Container>
   );
