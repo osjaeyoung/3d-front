@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios from "axios";
+// import axios from "axios";
 import { useEffect, useState } from "react";
 import { ThreeDModelViewer } from "./Viewer3D";
 import { MODELS } from '../constants';

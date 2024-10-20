@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, Suspense } from 'react';
+import React, { useRef, useEffect, Suspense } from 'react';
 import { Canvas, useThree, useFrame, extend, useLoader } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -54,7 +54,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
     }
   },[modelObject]);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (groupRef.current) {
       groupRef.current.rotation.y += delta;
     }
