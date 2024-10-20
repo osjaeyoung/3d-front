@@ -1,5 +1,10 @@
 import { Layout } from "@/components";
-import { ImageUploadZone, ProgressViewer, ThreeDModelViewer, PreviewZone } from "@/components/domain";
+import {
+  ImageUploadZone,
+  ProgressViewer,
+  ThreeDModelViewer,
+  PreviewZone,
+} from "@/components/domain";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -136,7 +141,6 @@ const Create3DModel = () => {
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
       } catch (error) {
         console.error("Error polling Meshroom status:", error);
-        break;
       }
     }
   };

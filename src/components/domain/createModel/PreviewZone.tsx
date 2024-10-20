@@ -5,28 +5,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import axios from "axios";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { ThreeDModelViewer } from "./Viewer3D";
-import { MODELS } from '../constants';
-import { iModels } from '../types';
+import { MODELS } from "../constants";
+import { iModels } from "../types";
 
 export const PreviewZone: React.FC = () => {
-  const [modelData, setModelData] = useState<iModels | null>(null);
-
-  useEffect(() => {
-    // model data 변경
-    setModelData(MODELS[3]); 
-  },[])
+  const [modelData, setModelData] = useState<any | null>(null);
+  // const [modelData, setModelData] = useState<iModels | null>(null);
 
   // useEffect(() => {
-  //   const fetchModelData = async () => {
-  //     const response = await axios(`http://3.38.72.210:4000/file/download`);
-  //     console.log({ response: response.data });
-  //     setModelData(response.data);  // 필요한 경로로 데이터 조정
-  //   };
-  //   fetchModelData();
-  // }, []);
+  //   // model data 변경
+  //   setModelData(MODELS[0]);
+  // },[])
+
+  useEffect(() => {
+    try {
+      const fetchModelData = async () => {
+        const response = await axios(`http://3.38.72.210:4000/file/download`);
+        console.log({ response: response.data });
+        setModelData(response.data);
+      };
+      fetchModelData();
+    } catch (error) {
+      console.log({ error });
+    }
+  }, []);
 
   return (
     <div className="w-full max-w-[710px] mx-auto flex flex-col items-start gap-y-[14px] mt-9">

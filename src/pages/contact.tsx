@@ -2,11 +2,34 @@ import { Layout } from "@/components";
 import { FacebookIcon, InstagramIcon, KakaoIcon } from "@/components/icons";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 const ContactPage = () => {
   const { register, handleSubmit } = useForm();
+
+  const sendContactEmail = async (emailForm: any) => {
+    const newForm = {
+      from: emailForm.email,
+      title: emailForm.name,
+      content: emailForm.message,
+    };
+    try {
+      const response = await axios.post("/api/contact", newForm, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data.message || "서버 요청에 실패함");
+      }
+      throw error;
+    }
+  };
+
   const onSubmit = (data: any) => {
-    console.log(data);
+    sendContactEmail(data);
   };
 
   return (
@@ -25,7 +48,10 @@ const ContactPage = () => {
               Contact
             </p>
             <div className="flex gap-4 bg-[#C4C0C2]">
-              <div className="flex flex-col justify-start items-center px-[53px] pt-[30px] pb-[24px] w-[554px] bg-white rounded-xl backdrop-blur-sm">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col justify-start items-center px-[53px] pt-[30px] pb-[24px] w-[554px] bg-white rounded-xl backdrop-blur-sm"
+              >
                 <div
                   id="input_box"
                   className="flex flex-col justify-center items-center gap-y-[13px]"
@@ -60,7 +86,7 @@ const ContactPage = () => {
                       id="webUrl"
                       type="text"
                       className="w-[360px] h-12 px-5 py-2.5 rounded border border-[#2f2c3f]"
-                      {...register("email", { required: true })}
+                      {...register("webUrl", { required: true })}
                     />
                   </div>
                   <div
@@ -81,7 +107,7 @@ const ContactPage = () => {
                     </p>
                   </button>
                 </div>
-              </div>
+              </form>
 
               <div className="w-[364px] bg-white rounded-xl backdrop-blur-sm flex flex-col items-center pt-[100px]">
                 <div id="icon_list" className="flex gap-x-7 mb-[66px]">
