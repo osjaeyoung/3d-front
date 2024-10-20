@@ -1,103 +1,89 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, useThree, useFrame, extend } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import React, { useRef, useEffect, Suspense } from 'react';
+import { Canvas, useThree, useFrame, extend, useLoader } from '@react-three/fiber';
+import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { 
+  IS_DEBUG, 
+  BG_COLOR,
+  CAMERA_MIN_DIS,
+  CAMERA_MAX_DIS,
+} from '../constants';
+import { iModels } from '../types';
 
 extend({ OrbitControls });
 
-interface ParsedOBJ {
-  vertices: number[];
-  normals: number[];
-  uvs: number[];
-  indices: number[];
-}
-
-const ParseOBJ = (text: string): ParsedOBJ => {
-  const vertices: number[] = [];
-  const normals: number[] = [];
-  const uvs: number[] = [];
-  const indices: number[] = [];
-
-  const lines = text.split('\n');
-  let vertexOffset = 0;
-
-  lines.forEach((line) => {
-    const parts = line.trim().split(/\s+/);
-    switch (parts[0]) {
-      case 'v':
-        vertices.push(
-          parseFloat(parts[1]),
-          parseFloat(parts[2]),
-          parseFloat(parts[3])
-        );
-        break;
-      case 'vn':
-        normals.push(
-          parseFloat(parts[1]),
-          parseFloat(parts[2]),
-          parseFloat(parts[3])
-        );
-        break;
-      case 'vt':
-        uvs.push(parseFloat(parts[1]), parseFloat(parts[2]));
-        break;
-      case 'f':
-        for (let i = 1; i <= 3; i++) {
-          const face = parts[i].split('/');
-          indices.push(parseInt(face[0]) - 1 - vertexOffset);
-        }
-        break;
-    }
-  });
-
-  return { vertices, normals, uvs, indices };
-};
-
 interface ModelViewerProps {
-  modelData: string;
+  modelData: iModels;
 }
 
 const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  let loader:any = OBJLoader;
+  let scale = 1;
+  switch(modelData.type){
+    case 'obj':
+      loader = OBJLoader;
+      break;
+    case 'fbx':
+      loader = FBXLoader;
+      scale = 0.01;
+      break;
+    case 'glb':
+      loader = GLTFLoader;
+      break;
+  }
+  const model = useLoader(loader, modelData.url);
+  let modelObject = model;
+  if(modelData.type === 'glb'){
+    modelObject = model.scene;
+  }
 
-  useEffect(() => {
-    if (modelData) {
-      const { vertices, normals, uvs, indices } = ParseOBJ(modelData);
-      console.log({ vertices, normals, uvs, indices });
-
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-      geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-      geo.setIndex(indices);
-      console.log({ geo });
-      setGeometry(geo);
+  // obj, fbx일때 mesh의 material의 뒷면까지 렌더링하는 코드입니다. 필요없으면 지우셔도 됩니다.
+  useEffect(()=>{
+    if(modelData.type !== 'glb' && modelObject.children && modelObject.children.length){
+      const mesh = modelObject.children[0] as THREE.Mesh;
+      const material = mesh.material as THREE.Material[];
+      if(material.length){
+        material.forEach((mat:THREE.Material) => {
+          mat.side = THREE.DoubleSide;
+        });
+      }
     }
-  }, [modelData]);
+  },[modelObject]);
 
-  useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.005;
+  useFrame((_state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta;
     }
   });
-
-  if (!geometry) return null;
-
   return (
-    <mesh ref={meshRef} geometry={geometry}>
-      <meshStandardMaterial color="black" side={THREE.DoubleSide} />
-    </mesh>
+    <>
+      <group ref={groupRef} >
+        <primitive scale={scale} object={modelObject} />
+      </group>
+    </>
   );
 };
 
 const CameraController: React.FC = () => {
   const { camera, gl } = useThree();
-  return <OrbitControls args={[camera, gl.domElement]} />;
+  return <OrbitControls 
+      minDistance={CAMERA_MIN_DIS} 
+      maxDistance={CAMERA_MAX_DIS} 
+      args={[camera, gl.domElement]} 
+    />;
 };
 
+
+const Loader: React.FC = () => {
+  return <Html center>loading...</Html>
+}
+
 interface ThreeDModelViewerProps {
-  modelData: string;
+  modelData: iModels;
 }
 
 export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({ modelData }) => {
@@ -107,7 +93,20 @@ export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({ modelData 
         <CameraController />
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
-        <ModelViewer modelData={modelData} />
+        <directionalLight position={[0, 1, 0]} intensity={2} />
+        <color attach={'background'} args={[BG_COLOR]}/>
+        <Suspense fallback={<Loader />}>
+          <ModelViewer modelData={modelData} />
+        </Suspense>
+        {
+          IS_DEBUG ?
+            <>
+              <axesHelper args={[5]}/>
+              <gridHelper />
+            </>
+          :
+            <></>
+        }
       </Canvas>
     </div>
   );
