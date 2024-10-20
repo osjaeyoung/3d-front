@@ -3,11 +3,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { KakaoLogo, GoogleLogo } from "@/components/icons";
+import { signIn } from "next-auth/react";
 
 const SignInPage = () => {
+
   const { register, handleSubmit } = useForm();
   const onSubmit = (data: any) => {
     console.log(data);
+  };
+  const handleKakaoLogin = () => {
+    signIn("kakao");
+  };
+  const handleGoogleLogin = () => {
+    signIn("google");
   };
 
   return (
@@ -76,6 +84,7 @@ const SignInPage = () => {
                     id="kakao_login"
                     type="button"
                     className="w-[520px] h-[50px] relative"
+                    onClick={handleKakaoLogin}
                   >
                     <div className="w-[520px] h-[50px] py-2.5 left-0 top-0 absolute bg-[#fee500] rounded-[10px] justify-center items-center gap-2.5 inline-flex">
                       <p className="text-center text-[#392020] text-base font-semibold font-['Pretendard']">
@@ -90,6 +99,7 @@ const SignInPage = () => {
                     id="kakao_login"
                     type="button"
                     className="w-[520px] h-[50px] relative"
+                    onClick={handleGoogleLogin}
                   >
                     <div className="w-[520px] h-[50px] py-2.5 bg-white rounded-[10px] justify-center items-center gap-2.5 inline-flex border border-[#c9c9c9] ">
                       <p className="text-center text-[#392020] text-base font-semibold font-['Pretendard']">
