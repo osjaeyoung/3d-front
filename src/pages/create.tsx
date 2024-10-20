@@ -58,8 +58,6 @@ const Create3DModel = () => {
   // 상태 관리
   const [progress, setProgress] = useState(0); // 진행률
   const [isUploading, setIsUploading] = useState(false); // 업로드 중 여부
-  const [isCompleted, setIsCompleted] = useState(false); // 다운로드 완료 여부
-  const [modelData, setModelData] = useState<any>(null); // 다운로드된 3D 객체
   const [tab, setTab] = useState("upload");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPreviewFiles, setSelectedPreviewFiles] = useState<string[]>(
@@ -98,9 +96,8 @@ const Create3DModel = () => {
         throw new Error("최대 6개의 파일만 업로드할 수 있습니다.");
       }
 
-      // FormData 생성 및 파일 추가
       const formData = new FormData();
-      validFiles.forEach((file, index) => {
+      validFiles.forEach((file) => {
         formData.append(`files`, file);
       });
       const response = await axios.post(`${API}/file/upload`, formData, {
@@ -143,39 +140,6 @@ const Create3DModel = () => {
         console.error("Error polling Meshroom status:", error);
       }
     }
-  };
-
-  const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length + selectedFiles.length > 6) {
-      alert("최대 6개의 파일만 선택할 수 있습니다.");
-      return;
-    }
-
-    setIsUploading(true);
-
-    const newFiles = files.slice(0, 6 - selectedFiles.length);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-
-    const newPreviews = await Promise.all(
-      newFiles.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            resolve(reader.result as string);
-          };
-          reader.readAsDataURL(file);
-        });
-      })
-    );
-
-    setSelectedPreviewFiles((prevPreviews) => [
-      ...prevPreviews,
-      ...newPreviews,
-    ]);
-    setIsUploading(false);
   };
 
   const removeFile = (index: number) => {

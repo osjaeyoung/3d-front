@@ -13,24 +13,28 @@ import { iModels } from "../types";
 
 export const PreviewZone: React.FC = () => {
   const [modelData, setModelData] = useState<any | null>(null);
-  // const [modelData, setModelData] = useState<iModels | null>(null);
-
-  // useEffect(() => {
-  //   // model data 변경
-  //   setModelData(MODELS[0]);
-  // },[])
 
   useEffect(() => {
-    try {
-      const fetchModelData = async () => {
-        const response = await axios(`http://3.38.72.210:4000/file/download`);
-        console.log({ response: response.data });
-        setModelData(response.data);
-      };
-      fetchModelData();
-    } catch (error) {
-      console.log({ error });
-    }
+    if (modelData) return;
+
+    const fetchModelData = async () => {
+      try {
+        const response = await axios(`http://3.38.72.210:4000/file/download`, {
+          responseType: "blob",
+        });
+        const blob = new Blob([response.data], { type: "text/plain" });
+        const file = new File([blob], "model.obj", { type: "text/plain" });
+        const fileUrl = URL.createObjectURL(file);
+        setModelData({
+          file: file,
+          url: fileUrl,
+        });
+      } catch (error) {
+        console.error("Error fetching model data:", error);
+      }
+    };
+
+    fetchModelData();
   }, []);
 
   return (

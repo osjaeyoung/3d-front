@@ -18,7 +18,8 @@ import {
   CAMERA_MAX_DIS,
 } from "../constants";
 import { iModels } from "../types";
-
+import { Spinner } from "@/components/ui/spinner";
+import { RotateIcon } from "@/components/icons";
 extend({ OrbitControls });
 
 interface ModelViewerProps {
@@ -26,7 +27,6 @@ interface ModelViewerProps {
 }
 
 const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
-  console.log({ modelData });
   const groupRef = useRef<THREE.Group>(null);
   let loader: any = OBJLoader;
   let scale = 1;
@@ -65,17 +65,18 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
     }
   }, [modelObject]);
 
-  useFrame((_state, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta;
-    }
-  });
+  // <자동회전 원할시 주석을 삭제하고 값 설정하시면 됩니다!>
+  /*
+    useFrame((_state, delta) => {
+      if (groupRef.current) {
+        groupRef.current.rotation.y += delta;
+      }
+    });
+  */
   return (
-    <>
-      <group ref={groupRef}>
-        <primitive scale={scale} object={modelObject} />
-      </group>
-    </>
+    <group ref={groupRef}>
+      <primitive scale={scale} object={modelObject} />
+    </group>
   );
 };
 
@@ -91,7 +92,11 @@ const CameraController: React.FC = () => {
 };
 
 const Loader: React.FC = () => {
-  return <Html center>loading...</Html>;
+  return (
+    <Html center>
+      <Spinner />
+    </Html>
+  );
 };
 
 interface ThreeDModelViewerProps {
@@ -102,8 +107,11 @@ export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({
   modelData,
 }) => {
   return (
-    <div style={{ width: "100%", height: "400px" }}>
-      <Canvas camera={{ position: [0, 0, 5] }}>
+    <div className="relative w-[375px] h-[192px]">
+      <div className="absolute z-10 left-[333px] top-[13px]">
+        <RotateIcon />
+      </div>
+      <Canvas camera={{ position: [0, 0, 7] }}>
         <CameraController />
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
@@ -112,13 +120,11 @@ export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({
         <Suspense fallback={<Loader />}>
           <ModelViewer modelData={modelData} />
         </Suspense>
-        {IS_DEBUG ? (
+        {IS_DEBUG && (
           <>
             <axesHelper args={[5]} />
             <gridHelper />
           </>
-        ) : (
-          <></>
         )}
       </Canvas>
     </div>
