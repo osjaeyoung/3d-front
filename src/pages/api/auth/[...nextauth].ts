@@ -65,7 +65,7 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "kakao" || account?.provider === "google") {
         const response = await fetch(
-          `http://3.38.72.210:4000/auth/${account.provider}/callback`,
+          `/proxy/auth/${account.provider}/callback`,
           {
             method: "GET",
             headers: {
