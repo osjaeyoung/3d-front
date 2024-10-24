@@ -5,11 +5,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { ThreeDModelViewer } from "./Viewer3D";
-import { MODELS } from "../constants";
-import { iModels } from "../types";
+import axiosInstance from "@/lib/axios";
 
 export const PreviewZone: React.FC = () => {
   const [modelData, setModelData] = useState<any | null>(null);
@@ -19,7 +17,7 @@ export const PreviewZone: React.FC = () => {
 
     const fetchModelData = async () => {
       try {
-        const response = await axios(`/proxy/file/download`, {
+        const response = await axiosInstance(`/proxy/file/download`, {
           responseType: "blob",
         });
         const blob = new Blob([response.data], { type: "text/plain" });

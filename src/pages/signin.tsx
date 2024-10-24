@@ -3,20 +3,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { KakaoLogo, GoogleLogo } from "@/components/icons";
-import axios from "axios";
-import { useRouter } from "next/router";
-
+import axiosInstance from "@/lib/axios";
 const SignInPage = () => {
   const { register, handleSubmit } = useForm();
-  const router = useRouter();
 
   const onSubmit = (data: any) => {
     console.log(data);
   };
 
   const handleGetAuthUrl = async (provider: "kakao" | "google") => {
-    const response = await axios.get(
-      `http://3.38.72.210:3000/auth/url?provider=${provider}`
+    const response = await axiosInstance.get(
+      `/proxy/auth/url?provider=${provider}`
     );
     console.log(response.data);
     return response.data;

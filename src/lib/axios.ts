@@ -1,10 +1,7 @@
 // src/libs/axios.ts
 import axios from "axios";
 
-export const axiosInstance = axios.create({
-  baseURL: "http://3.38.72.210:3000",
-  timeout: 5000,
-});
+export const axiosInstance = axios.create();
 
 // Request Interceptor
 axiosInstance.interceptors.request.use(

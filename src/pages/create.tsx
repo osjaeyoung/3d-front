@@ -2,7 +2,6 @@ import { Layout } from "@/components";
 import {
   ImageUploadZone,
   ProgressViewer,
-  ThreeDModelViewer,
   PreviewZone,
 } from "@/components/domain";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,10 +22,10 @@ import {
   PlusIcon,
 } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
-import axios from "axios";
 import { useAuth, useModal } from "@/hooks";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import axiosInstance from "@/lib/axios";
 
 interface TabContentWrapperProps {
   title: string;
@@ -69,18 +68,12 @@ const Create3DModel = () => {
     []
   );
   const { isAuthenticated } = useAuth();
-  const [clientSideAuth, setClientSideAuth] = useState(false);
   const { isOpen, onOpen, onClose } = useModal();
   useEffect(() => {
-    setClientSideAuth(isAuthenticated);
     if (!isAuthenticated) {
       onOpen();
     }
   }, [isAuthenticated]);
-
-  const handleTabChange = (tab: string) => {
-    setTab(tab);
-  };
 
   const handleUpload = async () => {
     setTab("progress");
@@ -112,13 +105,13 @@ const Create3DModel = () => {
       validFiles.forEach((file) => {
         formData.append(`files`, file);
       });
-      const response = await axios.post(`/proxy/file/upload`, formData, {
+      const response = await axiosInstance.post(`/proxy/file/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       if (response.status === 201 && response.data === "ok") {
-        await axios.post(`/proxy/meshroom/run`, null, {
+        await axiosInstance.post(`/proxy/meshroom/run`, null, {
           headers: {
             Accept: "application/json",
           },
@@ -137,7 +130,7 @@ const Create3DModel = () => {
     const maxSteps = 13;
     while (true) {
       try {
-        const status = await axios.get("/proxy/meshroom/state");
+        const status = await axiosInstance("/proxy/meshroom/state");
         const currentStep = status.data.step;
         setProcessingStep(currentStep);
         setProgress((currentStep / maxSteps) * 100);

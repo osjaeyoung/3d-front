@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 
 const OAuthCallback = () => {
   const router = useRouter();
@@ -12,23 +12,17 @@ const OAuthCallback = () => {
       if (!code || !provider) return;
 
       try {
-        const response = await axios.post(
-          "http://3.38.72.210:3000/auth/login",
-          {
-            provider: provider,
-            code: code,
-          }
-        );
+        const response = await axiosInstance.post("/proxy/auth/login", {
+          provider: provider,
+          code: code,
+        });
 
-        // 받은 액세스 토큰을 로컬 스토리지에 저장
         const { accessToken } = response.data;
         localStorage.setItem("accessToken", accessToken);
 
-        // 로그인 성공 후 메인 페이지로 리다이렉션
         router.push("/");
       } catch (error) {
         console.error("OAuth login failed:", error);
-        // 에러 발생 시 로그인 페이지로 리다이렉션
         router.push("/signin");
       }
     };

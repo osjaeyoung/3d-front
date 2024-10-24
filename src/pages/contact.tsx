@@ -2,7 +2,7 @@ import { Layout } from "@/components";
 import { FacebookIcon, InstagramIcon, KakaoIcon } from "@/components/icons";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 
 const ContactPage = () => {
   const { register, handleSubmit } = useForm();
@@ -14,16 +14,14 @@ const ContactPage = () => {
       content: emailForm.message,
     };
     try {
-      const response = await axios.post("/api/contact", newForm, {
+      const response = await axiosInstance.post("/api/contact", newForm, {
         headers: {
           "Content-Type": "application/json",
         },
       });
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data.message || "서버 요청에 실패함");
-      }
+      console.error({ error });
       throw error;
     }
   };
