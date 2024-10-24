@@ -3,19 +3,35 @@ import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { KakaoLogo, GoogleLogo } from "@/components/icons";
-import { signIn } from "next-auth/react";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 const SignInPage = () => {
-
   const { register, handleSubmit } = useForm();
+  const router = useRouter();
+
   const onSubmit = (data: any) => {
     console.log(data);
   };
-  const handleKakaoLogin = () => {
-    signIn("kakao");
+
+  const handleGetAuthUrl = async (provider: "kakao" | "google") => {
+    const response = await axios.get(
+      `http://3.38.72.210:3000/auth/url?provider=${provider}`
+    );
+    console.log(response.data);
+    return response.data;
   };
-  const handleGoogleLogin = () => {
-    signIn("google");
+
+  const handleKakaoLogin = async () => {
+    const authUrl = await handleGetAuthUrl("kakao");
+    console.log({ kakaoAuthUrl: authUrl });
+    window.location.href = authUrl.url;
+  };
+
+  const handleGoogleLogin = async () => {
+    const authUrl = await handleGetAuthUrl("google");
+    console.log({ googleAuthUrl: authUrl });
+    window.location.href = authUrl.url;
   };
 
   return (

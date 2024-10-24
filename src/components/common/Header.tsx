@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
 
 export const Header = () => {
   const router = useRouter();
+  const { isAuthenticated, logout } = useAuth();
+  const [clientSideAuth, setClientSideAuth] = useState(false);
+
   const handleSigninPage = () => router.push("/signin");
+
   const linkStyle = (path: string) => {
     const [_, pathSegments] = router.asPath.split("/");
     return (
@@ -11,6 +17,10 @@ export const Header = () => {
       " text-xl font-medium font-['Helvetica Neue']"
     );
   };
+
+  useEffect(() => {
+    setClientSideAuth(isAuthenticated);
+  }, [isAuthenticated]);
 
   return (
     <header className="bg-background shadow-md px-10 pt-10 pb-[30px] border-b border-white/50">
@@ -41,14 +51,25 @@ export const Header = () => {
               </Link>
             </li>
           </ul>
-          <button
-            onClick={handleSigninPage}
-            className="w-[76px] h-[26px] bg-gradient px-2.5 py-0.5 rounded-[20px] justify-center items-center gap-2.5 inline-flex"
-          >
-            <div className="text-white text-sm font-bold font-['Helvetica Neue']">
-              LOGIN
-            </div>
-          </button>
+          {clientSideAuth ? (
+            <button
+              onClick={logout}
+              className="w-[76px] h-[26px] bg-gradient px-2.5 py-0.5 rounded-[20px] justify-center items-center gap-2.5 inline-flex"
+            >
+              <p className="text-white text-sm font-bold font-['Helvetica Neue']">
+                LOGOUT
+              </p>
+            </button>
+          ) : (
+            <button
+              onClick={handleSigninPage}
+              className="w-[76px] h-[26px] bg-gradient px-2.5 py-0.5 rounded-[20px] justify-center items-center gap-2.5 inline-flex"
+            >
+              <p className="text-white text-sm font-bold font-['Helvetica Neue']">
+                LOGIN
+              </p>
+            </button>
+          )}
         </div>
       </nav>
     </header>
