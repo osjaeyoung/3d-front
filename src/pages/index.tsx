@@ -2,9 +2,25 @@ import { Layout } from "@/components";
 import { ArrowIcon } from "@/components/icons";
 import Image from "next/image";
 import { useRouter } from "next/router";
-
+import { useAuth } from "@/hooks";
+import { useState, useEffect } from "react";
 const Home = () => {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const [clientSideAuth, setClientSideAuth] = useState(false);
+
+  useEffect(() => {
+    setClientSideAuth(isAuthenticated);
+  }, [isAuthenticated]);
+
+  const handleClickStarted = () => {
+    if (clientSideAuth) {
+      router.push("/intro");
+    } else {
+      router.push("/signin");
+    }
+  };
+
   return (
     <Layout>
       <main className="flex flex-col items-center h-[calc(100vh-178px)]">
@@ -22,7 +38,7 @@ const Home = () => {
               with a Single Click
             </p>
             <button
-              onClick={() => router.push("/intro")}
+              onClick={handleClickStarted}
               className="h-12 px-6 py-3 bg-gradient rounded-[10px] justify-center items-center gap-3 inline-flex"
             >
               <p className="text-white text-xl font-bold font-['Helvetica Neue']">

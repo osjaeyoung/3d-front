@@ -5,7 +5,6 @@ import {
   ThreeDModelViewer,
   PreviewZone,
 } from "@/components/domain";
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -14,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { AuthenticationModal } from "@/components/domain";
 import {
   SmallUploadIcon,
   SmallDocumentIcon,
@@ -25,6 +24,9 @@ import {
 } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
+import { useAuth, useModal } from "@/hooks";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 interface TabContentWrapperProps {
   title: string;
@@ -52,16 +54,29 @@ const TabContentWrapper: React.FC<TabContentWrapperProps> = ({
   );
 };
 
+const tabTriggerStyle =
+  "gap-x-[9px] rounded-[27px] data-[state=active]:shadow data-[state=active]:border data-[state=active]:border-[#262433]";
+
 const Create3DModel = () => {
-  // 상태 관리
-  const [progress, setProgress] = useState(0); // 진행률
-  const [isUploading, setIsUploading] = useState(false); // 업로드 중 여부
+  const router = useRouter();
+
   const [tab, setTab] = useState("upload");
+  const [progress, setProgress] = useState(0);
+  const [processingStep, setProcessingStep] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPreviewFiles, setSelectedPreviewFiles] = useState<string[]>(
     []
   );
-  const [processingStep, setProcessingStep] = useState(0);
+  const { isAuthenticated } = useAuth();
+  const [clientSideAuth, setClientSideAuth] = useState(false);
+  const { isOpen, onOpen, onClose } = useModal();
+  useEffect(() => {
+    setClientSideAuth(isAuthenticated);
+    if (!isAuthenticated) {
+      onOpen();
+    }
+  }, [isAuthenticated]);
 
   const handleTabChange = (tab: string) => {
     setTab(tab);
@@ -73,7 +88,6 @@ const Create3DModel = () => {
     setProgress(0);
 
     try {
-      // 파일 형식 및 개수 검증
       const validFileTypes = [
         "image/jpeg",
         "image/jpg",
@@ -145,91 +159,93 @@ const Create3DModel = () => {
     );
   };
 
-  const tabTriggerStyle =
-    "gap-x-[9px] rounded-[27px] data-[state=active]:shadow data-[state=active]:border data-[state=active]:border-[#262433]";
-
+  const handleClose = () => {
+    onClose();
+    router.push("/signin");
+  };
   return (
-    <Layout className="min-h-screen flex flex-col">
-      <main className="flex flex-col items-center bg-background h-[calc(100vh-178px)]">
-        <p className="text-center text-white text-[32px] font-medium font-['Helvetica Neue'] mt-10">
-          Create 3D Model
-        </p>
-        <Tabs
-          value={tab}
-          className="flex flex-col justify-center items-center gap-y-[23px]"
-        >
-          <div className="bg-white rounded-[27px] shadow mt-[51px]">
-            <TabsList>
-              <TabsTrigger
-                value="upload"
-                className={`pl-[31px] pr-[20px] py-[14px] ${tabTriggerStyle}`}
-                onClick={() => handleTabChange("upload")}
+    <>
+      {isOpen && <AuthenticationModal isOpen={isOpen} onClose={handleClose} />}
+      <Layout className="min-h-screen flex flex-col">
+        <main className="flex flex-col items-center bg-background h-[calc(100vh-178px)]">
+          <p className="text-center text-white text-[32px] font-medium font-['Helvetica Neue'] mt-10">
+            Create 3D Model
+          </p>
+          <Tabs
+            value={tab}
+            className="flex flex-col justify-center items-center gap-y-[23px]"
+          >
+            <div className="bg-white rounded-[27px] shadow mt-[51px]">
+              <TabsList>
+                <TabsTrigger
+                  value="upload"
+                  className={`pl-[31px] pr-[20px] py-[14px] ${tabTriggerStyle}`}
+                >
+                  <SmallUploadIcon isActive={tab === "upload"} />
+                  <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
+                    Upload Your Image
+                  </p>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="progress"
+                  className={`px-[16px] py-[14px] ${tabTriggerStyle}`}
+                >
+                  <SmallWheelIcon isActive={tab === "progress"} />
+                  <p className="w-44 text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
+                    Let the AI Process Your Model
+                  </p>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="preview_download"
+                  className={`px-[23px]  py-[14px] ${tabTriggerStyle}`}
+                >
+                  <SmallDocumentIcon isActive={tab === "preview_download"} />
+                  <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
+                    {"Preview & Download"}
+                  </p>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="object"
+                  className={`px-[31px] py-[14px] ${tabTriggerStyle}`}
+                >
+                  <SmallObjectIcon isActive={tab === "object"} />
+                  <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
+                    Create Paper Toys
+                  </p>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="upload" className="w-full">
+              <TabContentWrapper title="Upload Your Image" onClick={() => {}}>
+                <ImageUploadZone
+                  selectedFiles={selectedFiles}
+                  setSelectedFiles={setSelectedFiles}
+                  selectedPreviewFiles={selectedPreviewFiles}
+                  setSelectedPreviewFiles={setSelectedPreviewFiles}
+                  removeFile={removeFile}
+                  handleUpload={handleUpload}
+                  isUploading={isUploading}
+                />
+              </TabContentWrapper>
+            </TabsContent>
+            <TabsContent value="progress">
+              <TabContentWrapper
+                title="AI Process Your Model"
+                onClick={() => {}}
               >
-                <SmallUploadIcon isActive={tab === "upload"} />
-                <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
-                  Upload Your Image
-                </p>
-              </TabsTrigger>
-              <TabsTrigger
-                value="progress"
-                className={`px-[16px] py-[14px] ${tabTriggerStyle}`}
-                onClick={() => handleTabChange("progress")}
-              >
-                <SmallWheelIcon isActive={tab === "progress"} />
-                <p className="w-44 text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
-                  Let the AI Process Your Model
-                </p>
-              </TabsTrigger>
-              <TabsTrigger
-                value="preview_download"
-                className={`px-[23px]  py-[14px] ${tabTriggerStyle}`}
-                onClick={() => handleTabChange("preview_download")}
-              >
-                <SmallDocumentIcon isActive={tab === "preview_download"} />
-                <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
-                  {"Preview & Download"}
-                </p>
-              </TabsTrigger>
-              <TabsTrigger
-                value="object"
-                className={`px-[31px] py-[14px] ${tabTriggerStyle}`}
-                onClick={() => handleTabChange("object")}
-              >
-                <SmallObjectIcon isActive={tab === "object"} />
-                <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
-                  Create Paper Toys
-                </p>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="upload" className="w-full">
-            <TabContentWrapper title="Upload Your Image" onClick={() => {}}>
-              <ImageUploadZone
-                selectedFiles={selectedFiles}
-                setSelectedFiles={setSelectedFiles}
-                selectedPreviewFiles={selectedPreviewFiles}
-                setSelectedPreviewFiles={setSelectedPreviewFiles}
-                removeFile={removeFile}
-                handleUpload={handleUpload}
-                isUploading={isUploading}
-              />
-            </TabContentWrapper>
-          </TabsContent>
-          <TabsContent value="progress">
-            <TabContentWrapper title="AI Process Your Model" onClick={() => {}}>
-              <ProgressViewer
-                progress={progress}
-                processingStep={processingStep}
-              />
-            </TabContentWrapper>
-          </TabsContent>
-          <TabsContent value="preview_download">
-            <TabContentWrapper title="Preview & Download" onClick={() => {}}>
-              <PreviewZone />
-            </TabContentWrapper>
-          </TabsContent>
-          <TabsContent value="object">
-            {/* <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
+                <ProgressViewer
+                  progress={progress}
+                  processingStep={processingStep}
+                />
+              </TabContentWrapper>
+            </TabsContent>
+            <TabsContent value="preview_download">
+              <TabContentWrapper title="Preview & Download" onClick={() => {}}>
+                <PreviewZone />
+              </TabContentWrapper>
+            </TabsContent>
+            <TabsContent value="object">
+              {/* <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
               <div className="flex flex-col">
                 <div className="flex gap-x-7 justify-start items-start mt-7">
                   <ThreeDModelViewer />
@@ -300,10 +316,11 @@ const Create3DModel = () => {
                 </div>
               </div>
             </TabContentWrapper> */}
-          </TabsContent>
-        </Tabs>
-      </main>
-    </Layout>
+            </TabsContent>
+          </Tabs>
+        </main>
+      </Layout>
+    </>
   );
 };
 

@@ -8,6 +8,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ArrowIcon } from "@/components/icons";
 import { useRouter } from "next/router";
+import { useAuth } from "@/hooks";
+import { useState, useEffect } from "react";
 
 interface Props {
   Icon: React.ComponentType;
@@ -66,6 +68,20 @@ const StepCard = ({ Icon, title, description, precautions }: Props) => {
 
 const IntroPage = () => {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const [clientSideAuth, setClientSideAuth] = useState(false);
+
+  useEffect(() => {
+    setClientSideAuth(isAuthenticated);
+  }, [isAuthenticated]);
+
+  const handleClickStarted = () => {
+    if (clientSideAuth) {
+      router.push("/create");
+    } else {
+      router.push("/signin");
+    }
+  };
 
   return (
     <Layout className="min-h-screen flex flex-col">
@@ -91,7 +107,7 @@ const IntroPage = () => {
               precautions={steps[3].precautions}
             />
             <button
-              onClick={() => router.push("/create")}
+              onClick={handleClickStarted}
               className="h-12 px-6 py-3 bg-gradient rounded-[10px] justify-center items-center gap-3 inline-flex max-w-[214px] mx-auto"
             >
               <p className="text-white text-xl font-bold font-['Helvetica Neue']">
