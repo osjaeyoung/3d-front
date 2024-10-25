@@ -17,7 +17,7 @@ export const PreviewZone: React.FC = () => {
 
     const fetchModelData = async () => {
       try {
-        const response = await axiosInstance(`/proxy/file/download`, {
+        const response = await axiosInstance(`/file/download`, {
           responseType: "blob",
         });
         const blob = new Blob([response.data], { type: "text/plain" });

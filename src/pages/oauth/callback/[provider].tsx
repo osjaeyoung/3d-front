@@ -12,7 +12,7 @@ const OAuthCallback = () => {
       if (!code || !provider) return;
 
       try {
-        const response = await axiosInstance.post("/proxy/auth/login", {
+        const response = await axiosInstance.post("/auth/login", {
           provider: provider,
           code: code,
         });

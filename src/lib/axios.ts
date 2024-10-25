@@ -1,7 +1,12 @@
 // src/libs/axios.ts
 import axios from "axios";
 
-export const axiosInstance = axios.create();
+export const axiosInstance = axios.create({
+  baseURL:
+    process.env.NEXT_PUBLIC_RUNNING_ENV! === "development"
+      ? "http://3.38.72.210:3000"
+      : "/proxy",
+});
 
 // Request Interceptor
 axiosInstance.interceptors.request.use(

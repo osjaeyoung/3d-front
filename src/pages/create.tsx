@@ -105,13 +105,13 @@ const Create3DModel = () => {
       validFiles.forEach((file) => {
         formData.append(`files`, file);
       });
-      const response = await axiosInstance.post(`/proxy/file/upload`, formData, {
+      const response = await axiosInstance.post(`/file/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       if (response.status === 201 && response.data === "ok") {
-        await axiosInstance.post(`/proxy/meshroom/run`, null, {
+        await axiosInstance.post(`/meshroom/run`, null, {
           headers: {
             Accept: "application/json",
           },
@@ -130,7 +130,7 @@ const Create3DModel = () => {
     const maxSteps = 13;
     while (true) {
       try {
-        const status = await axiosInstance("/proxy/meshroom/state");
+        const status = await axiosInstance("/meshroom/state");
         const currentStep = status.data.step;
         setProcessingStep(currentStep);
         setProgress((currentStep / maxSteps) * 100);
