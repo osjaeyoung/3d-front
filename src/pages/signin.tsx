@@ -15,7 +15,9 @@ const SignInPage = () => {
   };
 
   const handleGetAuthUrl = async (provider: "kakao" | "google") => {
-    const response = await axiosInstance.get(`/auth/url?provider=${provider}`);
+    const response = await axiosInstance.get(
+      `/proxy/auth/url?provider=${provider}`
+    );
     return response.data;
   };
 

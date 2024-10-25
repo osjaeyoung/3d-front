@@ -28,17 +28,24 @@ export const BlenderPreviewZone: React.FC<Props> = ({ onRecreate }) => {
     if (modelData) return;
     const fetchModelData = async () => {
       try {
-        const blenderResponse = await axiosInstance.post(`/blender/run`, null, {
-          headers: {
-            Accept: "application/json",
-          },
-        });
+        const blenderResponse = await axiosInstance.post(
+          `/proxy/blender/run`,
+          null,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
         if (blenderResponse.status === 201) {
-          const response = await axiosInstance(`/file/download?type=blender`, {
-            responseType: "blob",
-          });
+          const response = await axiosInstance(
+            `/proxy/file/download?type=blender`,
+            {
+              responseType: "blob",
+            }
+          );
           const originalResponse = await axiosInstance(
-            `/file/download?type=blender`
+            `/proxy/file/download?type=blender`
           );
           const base64Content = btoa(originalResponse.data);
           const blob = new Blob([response.data], { type: "text/plain" });
