@@ -18,16 +18,13 @@ interface SignInResponse {
 
 export const authService = {
   signup: async (data: SignUpRequest) => {
-    const response = await axios.post(
-      "http://3.38.72.210:3000/user/signup",
-      data
-    );
+    const response = await axios.post("/proxy/user/signup", data);
     return response.data;
   },
 
   signin: async (data: SignInRequest) => {
     const response = await axios.post<SignInResponse>(
-      "http://3.38.72.210:3000/user/signin",
+      "/proxy/user/signin",
       data
     );
     const { accessToken } = response.data;
