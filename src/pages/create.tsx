@@ -3,15 +3,10 @@ import {
   ImageUploadZone,
   ProgressViewer,
   PreviewZone,
+  BlenderPreviewZone,
+  MailSenderModal,
 } from "@/components/domain";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { AuthenticationModal } from "@/components/domain";
 import {
   SmallUploadIcon,
@@ -59,7 +54,9 @@ const tabTriggerStyle =
 const Create3DModel = () => {
   const router = useRouter();
 
-  const [tab, setTab] = useState("upload");
+  const [tab, setTab] = useState<
+    "upload" | "progress" | "preview_download" | "object"
+  >("upload");
   const [progress, setProgress] = useState(0);
   const [processingStep, setProcessingStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -69,6 +66,7 @@ const Create3DModel = () => {
   );
   const { isAuthenticated } = useAuth();
   const { isOpen, onOpen, onClose } = useModal();
+
   useEffect(() => {
     if (!isAuthenticated) {
       onOpen();
@@ -156,6 +154,12 @@ const Create3DModel = () => {
     onClose();
     router.push("/signin");
   };
+
+  const handleReCreate = () => {
+    setTab("upload");
+    setSelectedFiles([]);
+  };
+
   return (
     <>
       {isOpen && <AuthenticationModal isOpen={isOpen} onClose={handleClose} />}
@@ -173,6 +177,9 @@ const Create3DModel = () => {
                 <TabsTrigger
                   value="upload"
                   className={`pl-[31px] pr-[20px] py-[14px] ${tabTriggerStyle}`}
+                  onClick={() => {
+                    setTab("upload");
+                  }}
                 >
                   <SmallUploadIcon isActive={tab === "upload"} />
                   <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
@@ -191,6 +198,9 @@ const Create3DModel = () => {
                 <TabsTrigger
                   value="preview_download"
                   className={`px-[23px]  py-[14px] ${tabTriggerStyle}`}
+                  onClick={() => {
+                    setTab("preview_download");
+                  }}
                 >
                   <SmallDocumentIcon isActive={tab === "preview_download"} />
                   <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
@@ -234,81 +244,18 @@ const Create3DModel = () => {
             </TabsContent>
             <TabsContent value="preview_download">
               <TabContentWrapper title="Preview & Download" onClick={() => {}}>
-                <PreviewZone />
+                <PreviewZone
+                  onRecreate={handleReCreate}
+                  onContinue={() => {
+                    setTab("object");
+                  }}
+                />
               </TabContentWrapper>
             </TabsContent>
             <TabsContent value="object">
-              {/* <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
-              <div className="flex flex-col">
-                <div className="flex gap-x-7 justify-start items-start mt-7">
-                  <ThreeDModelViewer />
-                  <div className="h-full pt-3">
-                    <p className="text-center text-[#2f2c3f] text-sm font-medium font-['Helvetica Neue'] uppercase">
-                      Created file option
-                    </p>
-                    <Separator className="bg-[#c9c9c9] my-4" />
-                    <div className="flex flex-col h-full items-start gap-y-2 pl-[5px]">
-                      <div className="flex justify-center items-center">
-                        <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
-                          파일형식
-                        </label>
-                        <Separator
-                          orientation="vertical"
-                          className="bg-[#2f2c3f] mx-[14px]"
-                        />
-                        <p className="w-[47px] text-[#2f2c3f] text-xs font-bold font-['SUIT Variable'] uppercase">
-                          OBJ
-                        </p>
-                      </div>
-                      <div className="flex justify-center items-center">
-                        <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
-                          폴리곤 수
-                        </label>
-                        <Separator
-                          orientation="vertical"
-                          className="bg-[#2f2c3f] mx-[14px]"
-                        />
-                        <p className="w-[47px] text-[#2f2c3f] text-xs font-bold font-['SUIT Variable'] uppercase">
-                          적음(23)
-                        </p>
-                      </div>
-                      <div className="flex justify-center items-center">
-                        <label className="w-[50px] text-[#2f2c3f] text-xs font-medium font-['SUIT Variable'] uppercase">
-                          모델 크기
-                        </label>
-                        <Separator
-                          orientation="vertical"
-                          className="bg-[#2f2c3f] mx-[14px]"
-                        />
-                        <p className="w-[79px] text-[#2f2c3f] text-xs font-bold font-['SUIT Variable'] uppercase">
-                          적음(35MB)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  id="btn_group"
-                  className="flex justify-center gap-4 mt-[15px] mb-[25px]"
-                >
-                  <button className="w-[122px] h-11 px-6 py-3.5 bg-[#c9c9c9] rounded justify-center items-center gap-2.5 inline-flex">
-                    <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase">
-                      NEW
-                    </p>
-                  </button>
-                  <button className="w-[122px] h-11 px-6 py-3.5 bg-[#c9c9c9] rounded justify-center items-center gap-2.5 inline-flex">
-                    <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase whitespace-nowrap">
-                      RE CREATE
-                    </p>
-                  </button>
-                  <button className="w-[122px] h-11 px-6 py-3.5 bg-[#ffb600] rounded justify-center items-center gap-2.5 inline-flex">
-                    <p className="text-[#2f2c3f] text-sm font-bold font-['Helvetica'] uppercase">
-                      Continue
-                    </p>
-                  </button>
-                </div>
-              </div>
-            </TabContentWrapper> */}
+              <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
+                <BlenderPreviewZone onRecreate={handleReCreate} />
+              </TabContentWrapper>
             </TabsContent>
           </Tabs>
         </main>

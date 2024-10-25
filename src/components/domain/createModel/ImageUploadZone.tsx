@@ -41,7 +41,7 @@ export const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      setSelectedFiles((prevFiles) => [...prevFiles, ...files as any]);
+      setSelectedFiles((prevFiles) => [...prevFiles, ...(files as any)]);
       setSelectedPreviewFiles((prevFiles) => [
         ...prevFiles,
         ...Array.from(files).map((file) => URL.createObjectURL(file)),
@@ -136,7 +136,7 @@ export const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
         type="file"
         id="fileInput"
         multiple
-        accept=".jpg,.png,.bmp"
+        accept=".jpg,.png,.bmp,.jpeg"
         onChange={handleFileSelect}
         className="hidden"
         disabled={isUploading}

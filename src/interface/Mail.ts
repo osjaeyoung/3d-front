@@ -3,7 +3,6 @@ export interface ContactType {
   title: string;
   content: string;
   web_url: string;
-  file?: string;
 }
 
 export interface MailOptionType {

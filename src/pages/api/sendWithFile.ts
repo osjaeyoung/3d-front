@@ -1,6 +1,15 @@
+// pages/api/sendWithFile.ts
 import nodemailer from "nodemailer";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { ContactType, MailOptionType } from "@/interface/Mail";
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+};
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -12,37 +21,30 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/*
-    <내가 유저에게 보내기>
-    to: from || "",
-    from : process.env.NEXT_APP_EMAIL!,
-*/
-/*
-    <유저가 나에게 보내기>
-    to: process.env.NEXT_APP_EMAIL!,
-    from : from || "",
-*/
-
 interface SendWithFileType extends ContactType {
-  file: string;
+  file: {
+    name: string;
+    content: string; // data URI 형식의 문자열
+  };
 }
 
 export function sendEmail({ from, title, content, file }: SendWithFileType) {
   const mailOptions: MailOptionType = {
     to: process.env.NEXT_APP_EMAIL!,
-    from: from,
+    from: from || "",
     subject: `${title}`,
     attachments: [
       {
-        path: file,
+        filename: "model.obj",
+        path: file.content, // data URI를 직접 path로 사용
       },
     ],
     html: `
-    		<h1>${title}</h1>
-    		<div>${content}</div>
-    		</br>
-    		<p>보낸사람 : ${from}</p>
-    		`,
+      <h1>${title}</h1>
+      <div>${content}</div>
+      </br>
+      <p>보낸사람 : ${from}</p>
+    `,
   };
   return transporter.sendMail(mailOptions);
 }

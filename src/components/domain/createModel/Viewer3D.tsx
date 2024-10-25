@@ -100,7 +100,7 @@ const Loader: React.FC = () => {
 };
 
 interface ThreeDModelViewerProps {
-  modelData: iModels;
+  modelData: any;
 }
 
 export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({
