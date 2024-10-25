@@ -13,10 +13,6 @@ const nextConfig = {
         source: "/proxy/:path*",
         destination: "http://3.38.72.210:4000/:path*",
       },
-      {
-        source: "/proxy/auth/:path*",
-        destination: "http://3.38.72.210:4000/auth/:path*",
-      }
     ];
   },
 };
