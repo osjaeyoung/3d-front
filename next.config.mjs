@@ -10,11 +10,13 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        // source : 유저가 진입할 path
-        // destination : 유저가 이동할 path
         source: "/proxy/:path*",
         destination: "http://3.38.72.210:4000/:path*",
       },
+      {
+        source: "/proxy/auth/:path*",
+        destination: "http://3.38.72.210:4000/auth/:path*",
+      }
     ];
   },
 };
