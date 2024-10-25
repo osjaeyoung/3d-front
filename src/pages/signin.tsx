@@ -15,9 +15,7 @@ const SignInPage = () => {
   };
 
   const handleGetAuthUrl = async (provider: "kakao" | "google") => {
-    const response = await axiosInstance.get(
-      `/auth/url?provider=${provider}`
-    );
+    const response = await axiosInstance.get(`/auth/url?provider=${provider}`);
     return response.data;
   };
 
@@ -73,7 +71,7 @@ const SignInPage = () => {
                   type="text"
                   placeholder="아이디를 입력해주세요"
                   className="w-full max-w-[360px] h-12 px-5 py-2.5 rounded border border-[#2f2c3f] justify-start items-center gap-2.5 inline-flex placeholder:text-[#5b5b5b] placeholder:text-base placeholder:font-medium placeholder:font-['Helvetica Neue']"
-                  {...register("id", { required: true })}
+                  {...register("userId", { required: true })}
                 />
                 <div className="flex gap-x-2.5">
                   <input
@@ -81,7 +79,7 @@ const SignInPage = () => {
                     type="password"
                     placeholder="비밀번호를 입력해주세요"
                     className="w-full max-w-[360px] h-12 px-5 py-2.5 rounded border border-[#2f2c3f] justify-start items-center gap-2.5 inline-flex placeholder:text-[#5b5b5b] placeholder:text-base placeholder:font-medium placeholder:font-['Helvetica Neue']"
-                    {...register("password", { required: true })}
+                    {...register("pwd", { required: true })}
                   />
                   <button
                     type="submit"

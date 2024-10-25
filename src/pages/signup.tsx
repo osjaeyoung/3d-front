@@ -87,10 +87,6 @@ const Signup = () => {
                       className={inputStyle}
                       {...register("userId", {
                         required: "아이디를 입력해주세요",
-                        pattern: {
-                          value: /^[a-zA-Z0-9]{4,20}$/,
-                          message: "아이디는 4-20자의 영문과 숫자만 가능합니다",
-                        },
                       })}
                     />
                   </div>
