@@ -4,30 +4,30 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { KakaoLogo, GoogleLogo } from "@/components/icons";
 import axiosInstance from "@/lib/axios";
+import { authService } from "@/service/auth";
+
 const SignInPage = () => {
   const { register, handleSubmit } = useForm();
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    const response = await authService.signin(data);
+    console.log({ "SIGNIN RESPONSE": response });
   };
 
   const handleGetAuthUrl = async (provider: "kakao" | "google") => {
     const response = await axiosInstance.get(
       `/proxy/auth/url?provider=${provider}`
     );
-    console.log(response.data);
     return response.data;
   };
 
   const handleKakaoLogin = async () => {
     const authUrl = await handleGetAuthUrl("kakao");
-    console.log({ kakaoAuthUrl: authUrl });
     window.location.href = authUrl.url;
   };
 
   const handleGoogleLogin = async () => {
     const authUrl = await handleGetAuthUrl("google");
-    console.log({ googleAuthUrl: authUrl });
     window.location.href = authUrl.url;
   };
 
@@ -129,12 +129,6 @@ const SignInPage = () => {
                 <Link href="/signup">
                   <p className="text-center text-[#5b5b5b] text-base font-semibold font-['Pretendard']">
                     회원가입
-                  </p>
-                </Link>
-                <span>|</span>
-                <Link href="/forgot-password">
-                  <p className="text-center text-[#5b5b5b] text-base font-semibold font-['Pretendard']">
-                    아이디/비밀번호 찾기
                   </p>
                 </Link>
               </div>
