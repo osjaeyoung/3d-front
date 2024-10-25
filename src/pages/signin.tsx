@@ -10,8 +10,7 @@ const SignInPage = () => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data: any) => {
-    const response = await authService.signin(data);
-    console.log({ "SIGNIN RESPONSE": response });
+    await authService.signin(data);
   };
 
   const handleGetAuthUrl = async (provider: "kakao" | "google") => {
