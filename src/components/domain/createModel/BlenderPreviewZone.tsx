@@ -68,11 +68,12 @@ export const BlenderPreviewZone: React.FC<Props> = ({ onRecreate }) => {
 
   const handleMailSenderClose = async (content: string) => {
     if (!modelData) return;
-
+    const email = localStorage.getItem("email");
+    const name = localStorage.getItem("name");
     try {
       const response = await axios.post(`/api/sendWithFile`, {
-        from: "test@test.com",
-        title: "test",
+        from: email,
+        title: name + "님의 모델 오브젝트 요청 파일입니다.",
         content: content,
         file: {
           name: "model.obj",
