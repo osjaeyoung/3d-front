@@ -14,6 +14,8 @@ interface SignInRequest {
 
 interface SignInResponse {
   accessToken: string;
+  name: string;
+  email: string;
 }
 
 export const authService = {
@@ -27,8 +29,10 @@ export const authService = {
       "/proxy/user/signin",
       data
     );
-    const { accessToken } = response.data;
+    const { accessToken, name, email } = response.data;
     localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
     window.location.href = "/";
   },
 };

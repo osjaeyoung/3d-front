@@ -16,9 +16,10 @@ const OAuthCallback = () => {
           provider: provider,
           code: code,
         });
-
-        const { accessToken } = response.data;
+        const { accessToken, name, email } = response.data;
         localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
 
         router.push("/");
       } catch (error) {
