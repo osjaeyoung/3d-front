@@ -6,7 +6,7 @@ import {
   extend,
   useLoader,
 } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls, Html, Center } from "@react-three/drei";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
@@ -30,6 +30,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
   const groupRef = useRef<THREE.Group>(null);
   let loader: any = OBJLoader;
   let scale = 1;
+
   switch (modelData.type) {
     case "obj":
       loader = OBJLoader;
@@ -42,28 +43,34 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
       loader = GLTFLoader;
       break;
   }
+
   const model = useLoader(loader, modelData.url);
   let modelObject = model;
   if (modelData.type === "glb") {
     modelObject = model.scene;
   }
 
-  // obj, fbx일때 mesh의 material의 뒷면까지 렌더링하는 코드입니다. 필요없으면 지우셔도 됩니다.
   useEffect(() => {
-    if (
-      modelData.type !== "glb" &&
-      modelObject.children &&
-      modelObject.children.length
-    ) {
-      const mesh = modelObject.children[0] as THREE.Mesh;
-      const material = mesh.material as THREE.Material[];
-      if (material.length) {
-        material.forEach((mat: THREE.Material) => {
-          mat.side = THREE.DoubleSide;
-        });
+    if (modelObject) {
+      const box = new THREE.Box3().setFromObject(modelObject);
+      const center = box.getCenter(new THREE.Vector3());
+      modelObject.position.set(-center.x, -center.y, -center.z);
+      if (
+        modelData.type !== "glb" &&
+        modelObject.children &&
+        modelObject.children.length
+      ) {
+        const mesh = modelObject.children[0] as THREE.Mesh;
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((mat: THREE.Material) => {
+            mat.side = THREE.DoubleSide;
+          });
+        } else if (mesh.material) {
+          mesh.material.side = THREE.DoubleSide;
+        }
       }
     }
-  }, [modelObject]);
+  }, [modelObject, modelData.type]);
 
   // <자동회전 원할시 주석을 삭제하고 값 설정하시면 됩니다!>
   /*
@@ -74,19 +81,31 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData }) => {
     });
   */
   return (
-    <group ref={groupRef}>
-      <primitive scale={scale} object={modelObject} />
+    <group ref={groupRef} scale={scale}>
+      <primitive object={modelObject} />
     </group>
   );
 };
 
 const CameraController: React.FC = () => {
   const { camera, gl } = useThree();
+  const controlsRef = useRef<any>();
+
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
+    }
+  }, []);
+
   return (
     <OrbitControls
+      ref={controlsRef}
       minDistance={CAMERA_MIN_DIS}
       maxDistance={CAMERA_MAX_DIS}
       args={[camera, gl.domElement]}
+      enableDamping
+      dampingFactor={0.05}
     />
   );
 };
@@ -111,12 +130,19 @@ export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({
       <div className="absolute z-10 left-[333px] top-[13px]">
         <RotateIcon />
       </div>
-      <Canvas camera={{ position: [0, 0, 7] }}>
+      <Canvas
+        camera={{
+          position: [0, 2, 5],
+          fov: 50,
+          near: 0.1,
+          far: 1000,
+        }}
+      >
         <CameraController />
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
         <directionalLight position={[0, 1, 0]} intensity={2} />
-        <color attach={"background"} args={[BG_COLOR]} />
+        <color attach="background" args={[BG_COLOR]} />
         <Suspense fallback={<Loader />}>
           <ModelViewer modelData={modelData} />
         </Suspense>

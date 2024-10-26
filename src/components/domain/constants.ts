@@ -1,9 +1,9 @@
 import { iModels } from "./types";
 
-export const IS_DEBUG = true;
+export const IS_DEBUG = false;
 export const BG_COLOR = "#f4f4f4";
 export const CAMERA_MIN_DIS = 1;
-export const CAMERA_MAX_DIS = 5;
+export const CAMERA_MAX_DIS = 10;
 export const MODELS: iModels[] = [
   {
     type: "obj",
