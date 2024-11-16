@@ -1,23 +1,39 @@
 import { useEffect, useState } from "react";
 import { ThreeDModelViewer } from "./Viewer3D";
-import axiosInstance from "@/lib/axios";
+import axios from "axios";
 
 interface Props {
   onRecreate: () => void;
   onContinue: () => void;
+  sessionCode: string;
 }
 
-export const PreviewZone: React.FC<Props> = ({ onRecreate, onContinue }) => {
+export const PreviewZone: React.FC<Props> = ({
+  onRecreate,
+  onContinue,
+  sessionCode,
+}) => {
   const [modelData, setModelData] = useState<any | null>(null);
+
+  // mesh url
+  const [meshUrl, setMeshUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (modelData) return;
 
     const fetchModelData = async () => {
       try {
-        const response = await axiosInstance(`/proxy/file/download`, {
-          responseType: "blob",
-        });
+        const response = await axios.get(
+          `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
+          {
+            headers: {
+              "x-api-key": "0fd0122f96f7639B8dDA132d101E8Ff1",
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setMeshUrl(response.data.mesh_url_glb);
+        setModelData(response.data.mesh_url_glb);
         const blob = new Blob([response.data], { type: "text/plain" });
         const file = new File([blob], "model.obj", { type: "text/plain" });
         const fileUrl = URL.createObjectURL(file);
