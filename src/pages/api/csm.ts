@@ -18,6 +18,10 @@ interface CSMRequestBody {
   auto_refine?: boolean;
   refine_speed?: string;
   preview_mesh?: string;
+  texture_resolution?: number;
+  scaled_bbox?: [number, number, number];
+  topology?: string;
+  resolution?: string;
 }
 
 export default async function handler(
@@ -45,6 +49,10 @@ export default async function handler(
         auto_refine: body.auto_refine || false,
         refine_speed: body.refine_speed || "slow",
         preview_mesh: body.preview_mesh || "fast_sculpt",
+        texture_resolution: body.texture_resolution || 2048,
+        scaled_bbox: body.scaled_bbox || [0, 0, 0],
+        topology: body.topology || "tris",
+        resolution: body.resolution || "low_poly",
       },
       {
         headers: {

@@ -1,40 +1,28 @@
 import { useEffect, useState } from "react";
 import { ThreeDModelViewer } from "./Viewer3D";
-import axios from "axios";
+import { iModels } from "../types";
 
 interface Props {
   onRecreate: () => void;
   onContinue: () => void;
-  sessionCode: string;
+  glbUrl: string;
 }
 
 export const PreviewZone: React.FC<Props> = ({
   onRecreate,
   onContinue,
-  sessionCode,
+  glbUrl,
 }) => {
-  const [modelData, setModelData] = useState<any | null>(null);
+  const [modelData, setModelData] = useState<iModels | null>(null);
+  console.log(modelData);
   useEffect(() => {
     if (modelData) return;
 
     const fetchModelData = async () => {
       try {
-        const response = await axios.get(
-          `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
-          {
-            headers: {
-              "x-api-key": process.env.CSM_API_KEY!,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setModelData(response.data.mesh_url_glb);
-        const blob = new Blob([response.data], { type: "text/plain" });
-        const file = new File([blob], "model.obj", { type: "text/plain" });
-        const fileUrl = URL.createObjectURL(file);
         setModelData({
-          file: file,
-          url: fileUrl,
+          type: "glb",
+          url: glbUrl,
         });
       } catch (error) {
         console.error("Error fetching model data:", error);
@@ -48,7 +36,7 @@ export const PreviewZone: React.FC<Props> = ({
     <div className="w-full max-w-[710px] mx-auto flex flex-col items-center gap-y-[14px] mt-9">
       <div className="flex flex-col">
         <div className="flex gap-x-7 justify-start items-start mt-7">
-          {modelData && <ThreeDModelViewer modelData={modelData!} />}
+          {!!modelData?.url && <ThreeDModelViewer modelData={modelData!} />}
         </div>
         <div
           id="btn_group"

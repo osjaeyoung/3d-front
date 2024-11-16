@@ -54,7 +54,7 @@ const Create3DModel = () => {
   const [tab, setTab] = useState<
     "upload" | "progress" | "preview_download" | "object"
   >("upload");
-  const [sessionCode, setSessionCode] = useState<string | null>(null);
+  const [glbUrl, setGlbUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPreviewFiles, setSelectedPreviewFiles] = useState<string[]>(
@@ -117,17 +117,19 @@ const Create3DModel = () => {
         {
           image_url: base64WithMimeType,
           // creativity : highest | moderate | lowest
-          creativity: "highest",
+          creativity: "lowest",
           // refine_speed : fast | slow
-          refine_speed: "slow",
+          refine_speed: "fast",
           // preview_mesh : fast_sculpt, turbo
           preview_mesh: "fast_sculpt",
           // texture_resolution : 128, 256, 512, 1024, 2048
-          texture_resolution: 2048,
+          texture_resolution: 1024,
           // scaled_bbox : [width, height, depth] as Array<Number>
-          scaled_bbox: [1.0, 1.0, 1.0],
+          scaled_bbox: [1.0, 2.0, 0.5],
           // topology: "tris" | "quads"
           topology: "tris",
+          // resolution : low_poly, high_poly
+          resolution: "high_poly",
         },
         {
           onUploadProgress: (progressEvent) => {
@@ -148,8 +150,9 @@ const Create3DModel = () => {
 
       if (response.data.statusCode === 201) {
         const sessionCode = response.data.data.session_code;
-        setSessionCode(sessionCode);
-        await pollingCSMStatus();
+        const glbUrl = await pollingCSMStatus(sessionCode);
+        setGlbUrl(glbUrl);
+        setTab("preview_download");
       }
     } catch (error) {
       setStatus("error");
@@ -166,17 +169,22 @@ const Create3DModel = () => {
     );
   };
 
-  const pollingCSMStatus = async () => {
+  const pollingCSMStatus = async (sessionCode: string) => {
     const pollInterval = 3000;
     while (true) {
       try {
         const status = await axios.get(
-          `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`
+          `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
+          {
+            headers: {
+              "x-api-key": "0fd0122f96f7639B8dDA132d101E8Ff1",
+              "Content-Type": "application/json",
+            },
+          }
         );
-        if (!!status.data.preview_mesh_url_glb) {
+        if (!!status.data.data.preview_mesh_url_glb) {
           setTab("preview_download");
-          
-          return status.data.preview_mesh_url_glb;
+          return status.data.data.preview_mesh_url_glb;
         }
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
       } catch (error) {
@@ -200,7 +208,7 @@ const Create3DModel = () => {
     <>
       {isOpen && <AuthenticationModal isOpen={isOpen} onClose={handleClose} />}
       <Layout className="min-h-screen flex flex-col">
-        <main className="flex flex-col items-center bg-background h-[calc(100vh - 178px)]">
+        <main className="flex flex-col items-center bg-background h-[calc(100vh-178px)]">
           <p className="text-center text-white text-[32px] font-medium font-['Helvetica Neue'] mt-10">
             Create 3D Model
           </p>
@@ -225,6 +233,9 @@ const Create3DModel = () => {
                 <TabsTrigger
                   value="progress"
                   className={`px-[16px] py-[14px] ${tabTriggerStyle}`}
+                  onClick={() => {
+                    setTab("progress");
+                  }}
                 >
                   <SmallWheelIcon isActive={tab === "progress"} />
                   <p className="w-44 text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
@@ -246,6 +257,9 @@ const Create3DModel = () => {
                 <TabsTrigger
                   value="object"
                   className={`px-[31px] py-[14px] ${tabTriggerStyle}`}
+                  onClick={() => {
+                    setTab("object");
+                  }}
                 >
                   <SmallObjectIcon isActive={tab === "object"} />
                   <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
@@ -279,7 +293,7 @@ const Create3DModel = () => {
             <TabsContent value="preview_download">
               <TabContentWrapper title="Preview & Download" onClick={() => {}}>
                 <PreviewZone
-                  sessionCode={sessionCode!}
+                  glbUrl={glbUrl!}
                   onRecreate={handleReCreate}
                   onContinue={() => {
                     setTab("object");
@@ -288,8 +302,11 @@ const Create3DModel = () => {
               </TabContentWrapper>
             </TabsContent>
             <TabsContent value="object">
-              <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
-                <BlenderPreviewZone onRecreate={handleReCreate} />
+              <TabContentWrapper title="Create Paper Toys">
+                <BlenderPreviewZone
+                  onRecreate={handleReCreate}
+                  selectedFile={selectedFiles[0]}
+                />
               </TabContentWrapper>
             </TabsContent>
           </Tabs>

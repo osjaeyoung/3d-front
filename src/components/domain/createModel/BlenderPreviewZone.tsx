@@ -4,59 +4,85 @@ import { useModal } from "@/hooks/useModal";
 import { MailSenderModal } from "./MailSenderModal";
 import axios from "axios";
 import axiosInstance from "@/lib/axios";
+import { iModels } from "../types";
 
 interface Props {
   onRecreate: () => void;
+  selectedFile: File;
 }
 
-interface ModelData {
-  file: File;
-  url: string;
-  content: string;
-  base64Content: string;
-}
-
-export const BlenderPreviewZone: React.FC<Props> = ({ onRecreate }) => {
-  const [modelData, setModelData] = useState<ModelData | null>(null);
+export const BlenderPreviewZone: React.FC<Props> = ({
+  onRecreate,
+  selectedFile,
+}) => {
+  const [modelData, setModelData] = useState<iModels | null>(null);
   const {
     isOpen: isMailSenderOpen,
     onOpen: onMailSenderOpen,
     onClose: onMailSenderClose,
   } = useModal();
 
-  useEffect(() => {
-    if (modelData) return;
-    const fetchModelData = async () => {
+  const pollingCSMStatus = async (sessionCode: string) => {
+    const pollInterval = 5000;
+    while (true) {
       try {
-        const blenderResponse = await axiosInstance.post(
-          `/proxy/blender/run`,
-          null,
+        const status = await axios.get(
+          `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
           {
             headers: {
-              Accept: "application/json",
+              "x-api-key": "0fd0122f96f7639B8dDA132d101E8Ff1",
+              "Content-Type": "application/json",
             },
           }
         );
-        if (blenderResponse.status === 201) {
-          const response = await axiosInstance(
-            `/proxy/file/download?type=blender`,
-            {
-              responseType: "blob",
-            }
-          );
-          const originalResponse = await axiosInstance(
-            `/proxy/file/download?type=blender`
-          );
-          const base64Content = btoa(originalResponse.data);
-          const blob = new Blob([response.data], { type: "text/plain" });
-          const file = new File([blob], "model.obj", { type: "text/plain" });
-          const fileUrl = URL.createObjectURL(file);
+        if (!!status.data.data.preview_mesh_url_glb) {
+          return status.data.data.preview_mesh_url_glb;
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      } catch (error) {
+        console.error("Error polling Meshroom status:", error);
+        return null;
+      }
+    }
+  };
 
+  useEffect(() => {
+    const fetchModelData = async () => {
+      try {
+        const file = selectedFile;
+        const base64WithMimeType = await new Promise<string>(
+          (resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
+          }
+        );
+
+        const response = await axiosInstance.post("/api/csm", {
+          image_url: base64WithMimeType,
+          // creativity : highest | moderate | lowest
+          creativity: "lowest",
+          // refine_speed : fast | slow
+          refine_speed: "fast",
+          // preview_mesh : fast_sculpt, turbo
+          preview_mesh: "fast_sculpt",
+          // texture_resolution : 128, 256, 512, 1024, 2048
+          texture_resolution: 128,
+          // scaled_bbox : [width, height, depth] as Array<Number>
+          scaled_bbox: [1.0, 2.0, 0.5],
+          // topology: "tris" | "quads"
+          topology: "quads",
+          // resolution : low_poly, high_poly
+          resolution: "low_poly",
+        });
+
+        if (response.data.statusCode === 201) {
+          const sessionCode = response.data.data.session_code;
+          const glbUrl = await pollingCSMStatus(sessionCode);
           setModelData({
-            file: file,
-            url: fileUrl,
-            content: originalResponse.data,
-            base64Content: base64Content,
+            type: "glb",
+            url: glbUrl,
           });
         }
       } catch (error) {
@@ -68,40 +94,40 @@ export const BlenderPreviewZone: React.FC<Props> = ({ onRecreate }) => {
 
   const handleMailSenderClose = async (content: string) => {
     if (!modelData) return;
-    const email = localStorage.getItem("email");
-    const name = localStorage.getItem("name");
-    try {
-      const response = await axios.post(`/api/sendWithFile`, {
-        from: email,
-        title: name + "님의 모델 오브젝트 요청 파일입니다.",
-        content: content,
-        file: {
-          name: "model.obj",
-          content: `data:text/plain;base64,${modelData.base64Content}`,
-        },
-      });
+    // const email = localStorage.getItem("email");
+    // const name = localStorage.getItem("name");
+    // try {
+    //   const response = await axios.post(`/api/sendWithFile`, {
+    //     from: email,
+    //     title: name + "님의 모델 오브젝트 요청 파일입니다.",
+    //     content: content,
+    //     file: {
+    //       name: "model.obj",
+    //       content: `data:text/plain;base64,${modelData.base64Content}`,
+    //     },
+    //   });
 
-      if (response.status === 200) {
-        onMailSenderClose();
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      onMailSenderClose();
-    }
+    //   if (response.status === 200) {
+    //     onMailSenderClose();
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    // } finally {
+    //   onMailSenderClose();
+    // }
   };
 
   const handleDownload = () => {
-    if (modelData && modelData.file) {
-      const downloadUrl = URL.createObjectURL(modelData.file);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = "model.obj";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(downloadUrl);
-    }
+    // if (modelData && modelData.file) {
+    //   const downloadUrl = URL.createObjectURL(modelData.file);
+    //   const link = document.createElement("a");
+    //   link.href = downloadUrl;
+    //   link.download = "model.obj";
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+    //   URL.revokeObjectURL(downloadUrl);
+    // }
   };
 
   return (
