@@ -14,9 +14,6 @@ export const PreviewZone: React.FC<Props> = ({
   sessionCode,
 }) => {
   const [modelData, setModelData] = useState<any | null>(null);
-  // mesh url
-  const [meshUrl, setMeshUrl] = useState<string | null>(null);
-
   useEffect(() => {
     if (modelData) return;
 
@@ -31,7 +28,6 @@ export const PreviewZone: React.FC<Props> = ({
             },
           }
         );
-        setMeshUrl(response.data.mesh_url_glb);
         setModelData(response.data.mesh_url_glb);
         const blob = new Blob([response.data], { type: "text/plain" });
         const file = new File([blob], "model.obj", { type: "text/plain" });
