@@ -14,7 +14,6 @@ export const PreviewZone: React.FC<Props> = ({
   sessionCode,
 }) => {
   const [modelData, setModelData] = useState<any | null>(null);
-
   // mesh url
   const [meshUrl, setMeshUrl] = useState<string | null>(null);
 
@@ -27,7 +26,7 @@ export const PreviewZone: React.FC<Props> = ({
           `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
           {
             headers: {
-              "x-api-key": "0fd0122f96f7639B8dDA132d101E8Ff1",
+              "x-api-key": process.env.CSM_API_KEY!,
               "Content-Type": "application/json",
             },
           }
