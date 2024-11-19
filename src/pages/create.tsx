@@ -127,6 +127,13 @@ const Create3DModel = () => {
             "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
             "Content-Type": "application/json",
           },
+          onUploadProgress: (progressEvent) => {
+            setStatus("processing");
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 100)
+            );
+            setUploadProgress(percentCompleted);
+          },
         }
       );
 
@@ -165,7 +172,7 @@ const Create3DModel = () => {
           }
         );
         if (status.data.data.status === "preview_done") {
-          setTab("preview_download");
+          setProcessProgress(100);
           return status.data.data.preview_mesh_url_glb;
         }
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
