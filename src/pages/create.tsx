@@ -17,7 +17,7 @@ import {
 import { useAuth, useModal } from "@/hooks";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import axiosInstance from "@/lib/axios";
+import axios from "axios";
 
 interface TabContentWrapperProps {
   title: string;
@@ -50,17 +50,20 @@ const tabTriggerStyle =
 
 const Create3DModel = () => {
   const router = useRouter();
-
   const [tab, setTab] = useState<
     "upload" | "progress" | "preview_download" | "object"
   >("upload");
-  const [progress, setProgress] = useState(0);
-  const [processingStep, setProcessingStep] = useState(0);
+  const [glbUrl, setGlbUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPreviewFiles, setSelectedPreviewFiles] = useState<string[]>(
     []
   );
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [processProgress, setProcessProgress] = useState(0);
+  const [status, setStatus] = useState<
+    "uploading" | "processing" | "completed" | "error"
+  >("uploading");
   const { isAuthenticated } = useAuth();
   const { isOpen, onOpen, onClose } = useModal();
 
@@ -73,7 +76,9 @@ const Create3DModel = () => {
   const handleUpload = async () => {
     setTab("progress");
     setIsUploading(true);
-    setProgress(0);
+    setUploadProgress(0);
+    setProcessProgress(0);
+    setStatus("uploading");
 
     try {
       const validFileTypes = [
@@ -92,55 +97,57 @@ const Create3DModel = () => {
         );
       }
 
-      if (validFiles.length > 6) {
-        throw new Error("최대 6개의 파일만 업로드할 수 있습니다.");
+      if (validFiles.length > 1) {
+        throw new Error("한 번에 하나의 이미지만 처리할 수 있습니다.");
       }
 
-      const formData = new FormData();
-      validFiles.forEach((file) => {
-        formData.append(`files`, file);
-      });
-      const response = await axiosInstance.post(
-        `/proxy/file/upload`,
-        formData,
+      const file = validFiles[0];
+      const base64WithMimeType = await new Promise<string>(
+        (resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        }
+      );
+
+      const response = await axios.post(
+        "https://api.csm.ai/image-to-3d-sessions",
+        {
+          image_url: base64WithMimeType,
+          refine_speed: "slow",
+          preview_mesh: "fast_sculpt",
+          texture_resolution: 2048,
+          topology: "tris",
+          resolution: "high_poly",
+          creativity: "highest",
+        },
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
+            "Content-Type": "application/json",
+          },
+          onUploadProgress: (progressEvent) => {
+            setStatus("processing");
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 100)
+            );
+            setUploadProgress(percentCompleted);
           },
         }
       );
-      if (response.status === 201 && response.data === "ok") {
-        await axiosInstance.post(`/proxy/meshroom/run`, null, {
-          headers: {
-            Accept: "application/json",
-          },
-        });
-        await pollMeshroomStatus();
+
+      if (response.data.statusCode === 201) {
+        const sessionCode = response.data.data.session_code;
+        const glbUrl = await pollingCSMStatus(sessionCode);
+        setGlbUrl(glbUrl);
+        setTab("preview_download");
       }
     } catch (error) {
+      setStatus("error");
       console.error("Error uploading file:", error);
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const pollMeshroomStatus = async () => {
-    const pollInterval = 3000;
-    const maxSteps = 13;
-    while (true) {
-      try {
-        const status = await axiosInstance("/proxy/meshroom/state");
-        const currentStep = status.data.step;
-        setProcessingStep(currentStep);
-        setProgress((currentStep / maxSteps) * 100);
-        if (currentStep === maxSteps) {
-          setTab("preview_download");
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, pollInterval));
-      } catch (error) {
-        console.error("Error polling Meshroom status:", error);
-      }
     }
   };
 
@@ -149,6 +156,31 @@ const Create3DModel = () => {
     setSelectedPreviewFiles((prevPreviews) =>
       prevPreviews.filter((_, i) => i !== index)
     );
+  };
+
+  const pollingCSMStatus = async (sessionCode: string) => {
+    const pollInterval = 5000;
+    while (true) {
+      try {
+        const status = await axios.get(
+          `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
+          {
+            headers: {
+              "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (status.data.data.status === "preview_done") {
+          setProcessProgress(100);
+          return status.data.data.preview_mesh_url_glb;
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      } catch (error) {
+        console.error("Error polling Meshroom status:", error);
+        return null;
+      }
+    }
   };
 
   const handleClose = () => {
@@ -190,6 +222,9 @@ const Create3DModel = () => {
                 <TabsTrigger
                   value="progress"
                   className={`px-[16px] py-[14px] ${tabTriggerStyle}`}
+                  onClick={() => {
+                    setTab("progress");
+                  }}
                 >
                   <SmallWheelIcon isActive={tab === "progress"} />
                   <p className="w-44 text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
@@ -211,6 +246,9 @@ const Create3DModel = () => {
                 <TabsTrigger
                   value="object"
                   className={`px-[31px] py-[14px] ${tabTriggerStyle}`}
+                  onClick={() => {
+                    setTab("object");
+                  }}
                 >
                   <SmallObjectIcon isActive={tab === "object"} />
                   <p className="w-[123px] text-[#c9c9c9] text-xs font-bold font-['Helvetica Neue']">
@@ -233,19 +271,18 @@ const Create3DModel = () => {
               </TabContentWrapper>
             </TabsContent>
             <TabsContent value="progress">
-              <TabContentWrapper
-                title="AI Process Your Model"
-                onClick={() => {}}
-              >
+              <TabContentWrapper title="AI Process Your Model">
                 <ProgressViewer
-                  progress={progress}
-                  processingStep={processingStep}
+                  uploadProgress={uploadProgress}
+                  processProgress={processProgress}
+                  status={status}
                 />
               </TabContentWrapper>
             </TabsContent>
             <TabsContent value="preview_download">
               <TabContentWrapper title="Preview & Download" onClick={() => {}}>
                 <PreviewZone
+                  glbUrl={glbUrl!}
                   onRecreate={handleReCreate}
                   onContinue={() => {
                     setTab("object");
@@ -254,8 +291,11 @@ const Create3DModel = () => {
               </TabContentWrapper>
             </TabsContent>
             <TabsContent value="object">
-              <TabContentWrapper title="Create Paper Toys" onClick={() => {}}>
-                <BlenderPreviewZone onRecreate={handleReCreate} />
+              <TabContentWrapper title="Create Paper Toys">
+                <BlenderPreviewZone
+                  onRecreate={handleReCreate}
+                  selectedFile={selectedFiles[0]}
+                />
               </TabContentWrapper>
             </TabsContent>
           </Tabs>

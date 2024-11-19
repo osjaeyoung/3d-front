@@ -16,6 +16,7 @@ import {
   BG_COLOR,
   CAMERA_MIN_DIS,
   CAMERA_MAX_DIS,
+  MODELS,
 } from "../constants";
 import { iModels } from "../types";
 import { Spinner } from "@/components/ui/spinner";
@@ -140,7 +141,7 @@ export const ThreeDModelViewer: React.FC<ThreeDModelViewerProps> = ({
       >
         <CameraController />
         <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
+        <pointLight position={[0, 0, 0]} />
         <directionalLight position={[0, 1, 0]} intensity={2} />
         <color attach="background" args={[BG_COLOR]} />
         <Suspense fallback={<Loader />}>

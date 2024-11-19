@@ -1,6 +1,5 @@
 import { useRef, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useRouter } from "next/router";
 import { PlusIcon } from "@/components/icons";
 
 interface ImageUploadZoneProps {
@@ -22,7 +21,6 @@ export const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   handleUpload,
   isUploading,
 }: ImageUploadZoneProps) => {
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onDrop = useCallback(

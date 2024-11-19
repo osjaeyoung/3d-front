@@ -19,6 +19,7 @@ export const MODELS: iModels[] = [
   },
   {
     type: "glb",
-    url: "https://wroldofcoding.s3.ap-northeast-2.amazonaws.com/models/texturedMesh.glb",
+    url: "https://imageto3d.blob.core.windows.net/data/inference_outputs/dkvora@yopmail.com/SESSION_1707816789_8102507/mesh.glb",
+    // url: "https://implicitshapefm.blob.core.windows.net/inference-outputs/os.jaeyoung@gmail.com/SESSION_1731733701_5979420/mesh.glb?se=2036-04-13T20%3A11%3A38Z&sp=r&sv=2024-11-04&sr=b&sig=meiJ8R6fXGIPe973bvf3wxI1QjPoIVlUQz1NlVNHDpA%3D",
   },
 ];
