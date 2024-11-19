@@ -96,7 +96,7 @@ export const BlenderPreviewZone: React.FC<Props> = ({
         setIsLoading(false);
       }
     };
-    // fetchModelData();
+    fetchModelData();
   }, [modelData]);
 
   const handleMailSenderClose = async (content: string) => {
