@@ -5,6 +5,8 @@ import { MailSenderModal } from "./MailSenderModal";
 import axios from "axios";
 import { iModels } from "../types";
 import { MODELS } from "../constants";
+import { RotateIcon } from "@/components/icons";
+import { Loader } from "lucide-react";
 
 interface Props {
   onRecreate: () => void;
@@ -16,7 +18,7 @@ export const BlenderPreviewZone: React.FC<Props> = ({
   selectedFile,
 }) => {
   const [modelData, setModelData] = useState<iModels | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const {
     isOpen: isMailSenderOpen,
     onOpen: onMailSenderOpen,
@@ -94,7 +96,7 @@ export const BlenderPreviewZone: React.FC<Props> = ({
         setIsLoading(false);
       }
     };
-    fetchModelData();
+    // fetchModelData();
   }, [modelData]);
 
   const handleMailSenderClose = async (content: string) => {
@@ -148,8 +150,10 @@ export const BlenderPreviewZone: React.FC<Props> = ({
         <div className="flex flex-col">
           <div className="flex gap-x-7 justify-start items-start mt-7">
             {isLoading ? (
-              <div className="w-full h-full flex justify-center items-center">
-                {/* <Loading /> */}
+              <div className="bg-[#f4f4f4] relative w-[375px] h-[192px] flex justify-center items-center">
+                <div className="absolute z-10 left-[333px] top-[13px]">
+                  <Loader className="animate-spin" />
+                </div>
               </div>
             ) : (
               modelData && <ThreeDModelViewer modelData={modelData!} />
