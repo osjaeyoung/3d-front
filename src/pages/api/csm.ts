@@ -10,7 +10,7 @@ export const config = {
 };
 
 const CSM_API_URL = "https://api.csm.ai/image-to-3d-sessions";
-const CSM_API_KEY = process.env.CSM_API_KEY;
+const CSM_API_KEY = process.env.NEXT_PUBLIC_CSM_API_KEY;
 
 interface CSMRequestBody {
   image_url: string;
@@ -40,19 +40,17 @@ export default async function handler(
           "Base64 이미지는 반드시 MIME 타입이 포함되어야 합니다. (예: data:image/jpeg;base64,...)",
       });
     }
-
     const response = await axios.post(
       CSM_API_URL,
       {
         image_url: body.image_url,
-        creativity: body.creativity || "lowest",
-        auto_refine: body.auto_refine || false,
-        refine_speed: body.refine_speed || "slow",
-        preview_mesh: body.preview_mesh || "fast_sculpt",
-        texture_resolution: body.texture_resolution || 2048,
-        scaled_bbox: body.scaled_bbox || [0, 0, 0],
-        topology: body.topology || "tris",
-        resolution: body.resolution || "low_poly",
+        preview_mesh: "fast_sculpt",
+        topology: "tris", // Mesh Topology: Tris
+        resolution: "high_poly", // Polygon Count: High Poly
+        refine_speed: "slow", // Refine Speed: Slow
+        creativity: "highest", // Creativity: Highest
+        texture_resolution: 2048, // 기본 텍스처 해상도
+        auto_refine: false, // 기본 자동 리파인 설정
       },
       {
         headers: {
@@ -61,6 +59,12 @@ export default async function handler(
         },
       }
     );
+
+    console.log({
+      "동적 파라미터 값": {
+        texture_resolution: body.texture_resolution,
+      },
+    });
 
     console.log({ "csm result": response.data });
 

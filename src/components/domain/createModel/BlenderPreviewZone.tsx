@@ -3,8 +3,8 @@ import { ThreeDModelViewer } from "./Viewer3D";
 import { useModal } from "@/hooks/useModal";
 import { MailSenderModal } from "./MailSenderModal";
 import axios from "axios";
-import axiosInstance from "@/lib/axios";
 import { iModels } from "../types";
+import { MODELS } from "../constants";
 
 interface Props {
   onRecreate: () => void;
@@ -16,6 +16,7 @@ export const BlenderPreviewZone: React.FC<Props> = ({
   selectedFile,
 }) => {
   const [modelData, setModelData] = useState<iModels | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const {
     isOpen: isMailSenderOpen,
     onOpen: onMailSenderOpen,
@@ -30,12 +31,12 @@ export const BlenderPreviewZone: React.FC<Props> = ({
           `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
           {
             headers: {
-              "x-api-key": "0fd0122f96f7639B8dDA132d101E8Ff1",
+              "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
               "Content-Type": "application/json",
             },
           }
         );
-        if (!!status.data.data.preview_mesh_url_glb) {
+        if (status.data.data.status === "preview_done") {
           return status.data.data.preview_mesh_url_glb;
         }
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -49,6 +50,7 @@ export const BlenderPreviewZone: React.FC<Props> = ({
   useEffect(() => {
     const fetchModelData = async () => {
       try {
+        setIsLoading(true);
         const file = selectedFile;
         const base64WithMimeType = await new Promise<string>(
           (resolve, reject) => {
@@ -59,23 +61,24 @@ export const BlenderPreviewZone: React.FC<Props> = ({
           }
         );
 
-        const response = await axiosInstance.post("/api/csm", {
-          image_url: base64WithMimeType,
-          // creativity : highest | moderate | lowest
-          creativity: "lowest",
-          // refine_speed : fast | slow
-          refine_speed: "fast",
-          // preview_mesh : fast_sculpt, turbo
-          preview_mesh: "fast_sculpt",
-          // texture_resolution : 128, 256, 512, 1024, 2048
-          texture_resolution: 128,
-          // scaled_bbox : [width, height, depth] as Array<Number>
-          scaled_bbox: [1.0, 2.0, 0.5],
-          // topology: "tris" | "quads"
-          topology: "quads",
-          // resolution : low_poly, high_poly
-          resolution: "low_poly",
-        });
+        const response = await axios.post(
+          "https://api.csm.ai/image-to-3d-sessions",
+          {
+            image_url: base64WithMimeType,
+            refine_speed: "slow",
+            preview_mesh: "fast_sculpt",
+            texture_resolution: 128,
+            topology: "quads",
+            resolution: "low_poly",
+            creativity: "lowest",
+          },
+          {
+            headers: {
+              "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (response.data.statusCode === 201) {
           const sessionCode = response.data.data.session_code;
@@ -87,10 +90,12 @@ export const BlenderPreviewZone: React.FC<Props> = ({
         }
       } catch (error) {
         console.error("Error fetching model data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchModelData();
-  }, []);
+  }, [modelData]);
 
   const handleMailSenderClose = async (content: string) => {
     if (!modelData) return;
@@ -142,7 +147,13 @@ export const BlenderPreviewZone: React.FC<Props> = ({
       <div className="w-full max-w-[710px] mx-auto flex flex-col items-center gap-y-[14px] mt-9">
         <div className="flex flex-col">
           <div className="flex gap-x-7 justify-start items-start mt-7">
-            {modelData && <ThreeDModelViewer modelData={modelData!} />}
+            {isLoading ? (
+              <div className="w-full h-full flex justify-center items-center">
+                {/* <Loading /> */}
+              </div>
+            ) : (
+              modelData && <ThreeDModelViewer modelData={modelData!} />
+            )}
           </div>
           <div
             id="btn_group"

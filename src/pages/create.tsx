@@ -17,7 +17,6 @@ import {
 import { useAuth, useModal } from "@/hooks";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import axiosInstance from "@/lib/axios";
 import axios from "axios";
 
 interface TabContentWrapperProps {
@@ -112,38 +111,21 @@ const Create3DModel = () => {
         }
       );
 
-      const response = await axiosInstance.post(
-        "/api/csm",
+      const response = await axios.post(
+        "https://api.csm.ai/image-to-3d-sessions",
         {
           image_url: base64WithMimeType,
-          // creativity : highest | moderate | lowest
-          creativity: "lowest",
-          // refine_speed : fast | slow
-          refine_speed: "fast",
-          // preview_mesh : fast_sculpt, turbo
+          refine_speed: "slow",
           preview_mesh: "fast_sculpt",
-          // texture_resolution : 128, 256, 512, 1024, 2048
-          texture_resolution: 1024,
-          // scaled_bbox : [width, height, depth] as Array<Number>
-          scaled_bbox: [1.0, 2.0, 0.5],
-          // topology: "tris" | "quads"
+          texture_resolution: 2048,
           topology: "tris",
-          // resolution : low_poly, high_poly
           resolution: "high_poly",
+          creativity: "highest",
         },
         {
-          onUploadProgress: (progressEvent) => {
-            setStatus("processing");
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total ?? 100)
-            );
-            setUploadProgress(percentCompleted);
-          },
-          onDownloadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total ?? 100)
-            );
-            setProcessProgress(percentCompleted);
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -170,19 +152,19 @@ const Create3DModel = () => {
   };
 
   const pollingCSMStatus = async (sessionCode: string) => {
-    const pollInterval = 3000;
+    const pollInterval = 5000;
     while (true) {
       try {
         const status = await axios.get(
           `https://api.csm.ai/image-to-3d-sessions/${sessionCode}`,
           {
             headers: {
-              "x-api-key": "0fd0122f96f7639B8dDA132d101E8Ff1",
+              "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
               "Content-Type": "application/json",
             },
           }
         );
-        if (!!status.data.data.preview_mesh_url_glb) {
+        if (status.data.data.status === "preview_done") {
           setTab("preview_download");
           return status.data.data.preview_mesh_url_glb;
         }
