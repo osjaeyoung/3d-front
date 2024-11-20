@@ -64,6 +64,7 @@ const Create3DModel = () => {
   const [status, setStatus] = useState<
     "uploading" | "processing" | "completed" | "error"
   >("uploading");
+  const [meshUrl, setMeshUrl] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
   const { isOpen, onOpen, onClose } = useModal();
 
@@ -116,6 +117,7 @@ const Create3DModel = () => {
         {
           image_url: base64WithMimeType,
           refine_speed: "slow",
+          // preview_mesh: "turbo",
           preview_mesh: "fast_sculpt",
           texture_resolution: 2048,
           topology: "tris",
@@ -136,11 +138,11 @@ const Create3DModel = () => {
           },
         }
       );
-
       if (response.data.statusCode === 201) {
         const sessionCode = response.data.data.session_code;
-        const glbUrl = await pollingCSMStatus(sessionCode);
+        const { glbUrl, meshUrl } = await pollingCSMStatus(sessionCode);
         setGlbUrl(glbUrl);
+        setMeshUrl(meshUrl);
         setTab("preview_download");
       }
     } catch (error) {
@@ -158,7 +160,35 @@ const Create3DModel = () => {
     );
   };
 
-  const pollingCSMStatus = async (sessionCode: string) => {
+  const getPreviewMesh = async (
+    sessionCode: string,
+    base64WithMimeType: unknown
+  ) => {
+    try {
+      const response = await axios.post(
+        `https://api.csm.ai/image-to-3d-sessions/get-3d/preview/${sessionCode}`,
+        {
+          selected_spin_index: 0,
+          selected_spin: base64WithMimeType,
+        },
+        {
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_CSM_API_KEY!,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.data.status;
+    } catch (error) {
+      console.error("Error getting preview mesh:", error);
+      throw error;
+    }
+  };
+
+  const pollingCSMStatus = async (
+    sessionCode: string
+  ): Promise<{ glbUrl: string | null; meshUrl: string | null }> => {
     const pollInterval = 5000;
     while (true) {
       try {
@@ -173,12 +203,15 @@ const Create3DModel = () => {
         );
         if (status.data.data.status === "preview_done") {
           setProcessProgress(100);
-          return status.data.data.preview_mesh_url_glb;
+          return {
+            glbUrl: status.data.data.preview_mesh_url_glb,
+            meshUrl: status.data.data.preview_mesh_url,
+          };
         }
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
       } catch (error) {
         console.error("Error polling Meshroom status:", error);
-        return null;
+        return { glbUrl: null, meshUrl: null };
       }
     }
   };
@@ -294,7 +327,7 @@ const Create3DModel = () => {
               <TabContentWrapper title="Create Paper Toys">
                 <BlenderPreviewZone
                   onRecreate={handleReCreate}
-                  selectedFile={selectedFiles[0]}
+                  meshUrl={meshUrl!}
                 />
               </TabContentWrapper>
             </TabsContent>
