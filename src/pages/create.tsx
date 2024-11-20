@@ -117,8 +117,8 @@ const Create3DModel = () => {
         {
           image_url: base64WithMimeType,
           refine_speed: "slow",
-          // preview_mesh: "turbo",
-          preview_mesh: "fast_sculpt",
+          preview_mesh: "turbo",
+          // preview_mesh: "fast_sculpt",
           texture_resolution: 2048,
           topology: "tris",
           resolution: "high_poly",
@@ -140,7 +140,10 @@ const Create3DModel = () => {
       );
       if (response.data.statusCode === 201) {
         const sessionCode = response.data.data.session_code;
-        const { glbUrl, meshUrl } = await pollingCSMStatus(sessionCode);
+        const { glbUrl, meshUrl } = await pollingCSMStatus(
+          sessionCode,
+          base64WithMimeType
+        );
         setGlbUrl(glbUrl);
         setMeshUrl(meshUrl);
         setTab("preview_download");
@@ -187,7 +190,8 @@ const Create3DModel = () => {
   };
 
   const pollingCSMStatus = async (
-    sessionCode: string
+    sessionCode: string,
+    base64WithMimeType: unknown
   ): Promise<{ glbUrl: string | null; meshUrl: string | null }> => {
     const pollInterval = 5000;
     while (true) {
@@ -201,6 +205,9 @@ const Create3DModel = () => {
             },
           }
         );
+        if (status.data.data.status === "spin_generate_done") {
+          await getPreviewMesh(sessionCode, base64WithMimeType);
+        }
         if (status.data.data.status === "preview_done") {
           setProcessProgress(100);
           return {
@@ -208,6 +215,7 @@ const Create3DModel = () => {
             meshUrl: status.data.data.preview_mesh_url,
           };
         }
+
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
       } catch (error) {
         console.error("Error polling Meshroom status:", error);
