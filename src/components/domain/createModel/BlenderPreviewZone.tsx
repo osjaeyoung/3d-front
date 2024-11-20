@@ -62,9 +62,11 @@ export const BlenderPreviewZone: React.FC<Props> = ({
             content: originalResponse.data,
             base64Content: base64Content,
           });
+          setIsLoading(false);
         }
       } catch (error) {
         console.error("Error fetching model data:", error);
+        setIsLoading(false);
       }
     };
     fetchModelData();

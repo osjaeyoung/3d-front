@@ -117,8 +117,8 @@ const Create3DModel = () => {
         {
           image_url: base64WithMimeType,
           refine_speed: "slow",
-          preview_mesh: "turbo",
-          // preview_mesh: "fast_sculpt",
+          // preview_mesh: "turbo",
+          preview_mesh: "fast_sculpt",
           texture_resolution: 2048,
           topology: "tris",
           resolution: "high_poly",
