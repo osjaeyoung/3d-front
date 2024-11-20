@@ -65,8 +65,6 @@ export const BlenderPreviewZone: React.FC<Props> = ({
         }
       } catch (error) {
         console.error("Error fetching model data:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchModelData();
