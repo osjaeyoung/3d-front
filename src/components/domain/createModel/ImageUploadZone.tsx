@@ -88,7 +88,7 @@ export const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
       )}
       {selectedFiles.length > 0 && (
         <div className="flex flex-col justify-center items-center w-full h-[254px] pt-[45px] pb-[35px] rounded-[20px] border border-dashed border-[#c9c9c9] mt-6">
-          <div className="flex w-full justify-start items-center gap-x-[30px]">
+          <div className="flex w-full justify-center items-center gap-x-[30px]">
             {selectedPreviewFiles.map((preview, index) => (
               <div key={index} className="relative">
                 <img
@@ -133,7 +133,6 @@ export const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
       <input
         type="file"
         id="fileInput"
-        multiple
         accept=".jpg,.png,.bmp,.jpeg"
         onChange={handleFileSelect}
         className="hidden"
